@@ -76,6 +76,9 @@ trị của quản lý.
 - Danh sách đơn hàng và danh sách khách hàng sử dụng truy vấn tương thích với
   MySQL `ONLY_FULL_GROUP_BY`; khi chưa có đơn, màn hình hiển thị danh sách rỗng
   và thống kê hiển thị 0 thay vì lỗi SQL.
+- Thống kê doanh thu theo quý tách riêng tổng doanh thu và số lượng xuất kho,
+  tránh nhân doanh thu theo số dòng sản phẩm; khi chưa có dữ liệu sẽ hiển thị
+  bốn quý bằng 0 và thông báo rõ ràng.
 - Tự động đề xuất mã sản phẩm tiếp theo.
 - Kiểm tra dữ liệu trùng bằng request AJAX và kiểm tra lại ở server.
 

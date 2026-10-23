@@ -137,19 +137,31 @@ class donhang
     public function getQuarterlyStatistics(): array
     {
         $xl = new xl_data();
-        $rows = $xl->readPreparedAll(
-            "SELECT
-                QUARTER(d.ngay_dat) AS quarter_number,
-                COALESCE(SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
-                    THEN d.tong_tien ELSE 0 END), 0) AS revenue,
-                COALESCE(SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
-                    THEN ct.so_luong ELSE 0 END), 0) AS exported_quantity
-             FROM donhang d
-             LEFT JOIN chitiet_donhang ct ON ct.donhang_id = d.id
-             WHERE YEAR(d.ngay_dat) = YEAR(CURDATE())
-             GROUP BY QUARTER(d.ngay_dat)
-             ORDER BY quarter_number"
+        $revenueRows = $xl->readPreparedAll(
+            "SELECT QUARTER(ngay_dat) AS quarter_number,
+                    COALESCE(SUM(tong_tien), 0) AS revenue
+             FROM donhang
+             WHERE YEAR(ngay_dat) = YEAR(CURDATE())
+               AND trang_thai NOT IN ('da_huy', 'hoan_tra')
+             GROUP BY QUARTER(ngay_dat)"
         );
+        $exportRows = $xl->readPreparedAll(
+            "SELECT QUARTER(d.ngay_dat) AS quarter_number,
+                    COALESCE(SUM(ct.so_luong), 0) AS exported_quantity
+             FROM donhang d
+             INNER JOIN chitiet_donhang ct ON ct.donhang_id = d.id
+             WHERE YEAR(d.ngay_dat) = YEAR(CURDATE())
+               AND d.trang_thai NOT IN ('da_huy', 'hoan_tra')
+             GROUP BY QUARTER(d.ngay_dat)"
+        );
+        $revenueByQuarter = [];
+        foreach ($revenueRows as $row) {
+            $revenueByQuarter[(int) $row['quarter_number']] = (float) $row['revenue'];
+        }
+        $exportByQuarter = [];
+        foreach ($exportRows as $row) {
+            $exportByQuarter[(int) $row['quarter_number']] = (int) $row['exported_quantity'];
+        }
         $imports = $xl->readPreparedAll(
             "SELECT QUARTER(created_at) AS quarter_number, SUM(quantity) AS imported_quantity
              FROM inventory_movements
@@ -165,15 +177,10 @@ class donhang
         for ($quarter = 1; $quarter <= 4; $quarter++) {
             $statistics[] = [
                 'quarter' => $quarter,
-                'revenue' => 0,
-                'exported_quantity' => 0,
+                'revenue' => $revenueByQuarter[$quarter] ?? 0,
+                'exported_quantity' => $exportByQuarter[$quarter] ?? 0,
                 'imported_quantity' => $importByQuarter[$quarter] ?? 0,
             ];
-        }
-        foreach ($rows as $row) {
-            $quarter = (int) $row['quarter_number'];
-            $statistics[$quarter - 1]['revenue'] = (float) $row['revenue'];
-            $statistics[$quarter - 1]['exported_quantity'] = (int) $row['exported_quantity'];
         }
         return $statistics;
     }

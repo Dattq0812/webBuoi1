@@ -81,6 +81,14 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
         </div>
         <?php
         $quarterlyStatistics = $quarterlyStatistics ?? [];
+        $hasQuarterlyData = array_reduce(
+            $quarterlyStatistics,
+            static fn (bool $hasData, array $quarter): bool => $hasData
+                || (float) $quarter['revenue'] > 0
+                || (int) $quarter['imported_quantity'] > 0
+                || (int) $quarter['exported_quantity'] > 0,
+            false
+        );
         $maxQuarterRevenue = max(array_map(
             static fn (array $quarter): float => (float) $quarter['revenue'],
             $quarterlyStatistics
@@ -96,6 +104,9 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
         <div class="statistics-charts">
             <div class="card">
                 <h3>Doanh thu theo quý</h3>
+                <?php if (!$hasQuarterlyData): ?>
+                    <p class="subtitle">Chưa có dữ liệu đơn hàng trong năm nay.</p>
+                <?php endif; ?>
                 <div class="bar-chart" aria-label="Biểu đồ doanh thu theo quý">
                     <?php foreach ($quarterlyStatistics as $quarter): ?>
                         <?php $height = max(4, (int) round((float) $quarter['revenue'] / $maxQuarterRevenue * 100)); ?>
