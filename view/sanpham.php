@@ -130,6 +130,7 @@ $nextProductId = $nextProductId ?? 1;
             <th>Ngày nhập</th>
             <th>Mô tả</th>
             <th>Số lượng</th>
+            <th>Bán hôm nay</th>
             <th>Giảm giá</th>
             <th>Edit</th>
             <th>Delete</th>
@@ -138,7 +139,8 @@ $nextProductId = $nextProductId ?? 1;
     <tbody>
         <?php if (!empty($danhsach)): ?>
             <?php foreach ($danhsach as $rc): ?>
-                <tr>
+                <?php $isOutOfStock = (int) $rc['Mount'] <= 0; ?>
+                <tr class="<?php echo $isOutOfStock ? 'product-row-out-of-stock' : 'product-row-selling'; ?>">
                     <td><?php echo (int) $rc['id_danhmuc']; ?></td>
                     <td><?php echo (int) $rc['id_sp']; ?></td>
                     <td>
@@ -160,7 +162,16 @@ $nextProductId = $nextProductId ?? 1;
                     <td><?php echo htmlspecialchars($rc['Price'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars($rc['Date_import'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars($rc['Decribe'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($rc['Mount'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td>
+                        <span class="stock-badge <?php echo $isOutOfStock ? 'stock-badge-out' : 'stock-badge-in'; ?>">
+                            <?php echo $isOutOfStock ? 'Hết hàng' : 'Còn ' . (int) $rc['Mount']; ?>
+                        </span>
+                    </td>
+                    <td>
+                        <strong class="today-sales">
+                            <?php echo (int) ($rc['sold_today'] ?? 0); ?>
+                        </strong>
+                    </td>
                     <td><?php echo htmlspecialchars($rc['Sale'], ENT_QUOTES, 'UTF-8'); ?>%</td>
                     <td>
                         <a class="btn" href="index.php?act=editsp&amp;idsp=<?php echo (int) $rc['id_sp']; ?>">
@@ -176,7 +187,7 @@ $nextProductId = $nextProductId ?? 1;
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td class="empty" colspan="11">Hiện chưa có sản phẩm nào.</td></tr>
+            <tr><td class="empty" colspan="12">Hiện chưa có sản phẩm nào.</td></tr>
         <?php endif; ?>
     </tbody>
 </table>

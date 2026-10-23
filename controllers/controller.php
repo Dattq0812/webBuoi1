@@ -136,6 +136,14 @@ class controller
         return (new donhang())->getDetail($id, $customerId);
     }
 
+    public function completeCustomerOrder(int $id, int $customerId, int $rating, string $comment): void {
+        (new donhang())->completeByCustomer($id, $customerId, $rating, $comment);
+    }
+
+    public function returnCustomerOrder(int $id, int $customerId, string $reason): array {
+        return (new donhang())->returnByCustomer($id, $customerId, $reason);
+    }
+
     public function isDuplicate(string $field, string $value, ?int $excludeId = null): bool {
         return (new duplicate_checker())->exists($field, $value, $excludeId);
     }

@@ -5,6 +5,8 @@ $statusLabels = [
     'da_xac_nhan' => 'Đã xác nhận',
     'dang_giao' => 'Đang giao',
     'da_giao' => 'Đã giao',
+    'yeu_cau_hoan_tra' => 'Chờ duyệt hoàn trả',
+    'hoan_tat' => 'Đã hoàn tất',
     'da_huy' => 'Đã huỷ',
     'hoan_tra' => 'Hoàn trả hàng',
 ];
@@ -16,7 +18,7 @@ $nextStatuses = [
     'cho_xac_nhan' => 'da_xac_nhan',
     'da_xac_nhan' => 'dang_giao',
     'dang_giao' => 'da_giao',
-    'da_giao' => 'hoan_tra',
+    'yeu_cau_hoan_tra' => 'hoan_tra',
 ];
 $currentStatus = $order['trang_thai'] ?? 'cho_xac_nhan';
 ?>
@@ -60,6 +62,39 @@ $currentStatus = $order['trang_thai'] ?? 'cho_xac_nhan';
             <?php endif; ?>
             <?php if (!empty($order['ly_do_huy'])): ?>
                 <div style="grid-column:1 / -1;"><strong>Lý do huỷ</strong><br><?php echo nl2br(htmlspecialchars($order['ly_do_huy'], ENT_QUOTES, 'UTF-8')); ?></div>
+            <?php endif; ?>
+            <?php if (isCustomer() && $currentStatus === 'da_giao'): ?>
+                <div style="grid-column:1 / -1; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; margin-top:10px;">
+                    <form class="card" method="post" action="index.php?act=complete_customer_order">
+                        <input type="hidden" name="id" value="<?php echo (int) $order['id']; ?>">
+                        <h3>Hoàn tất đơn hàng</h3>
+                        <label>Đánh giá chất lượng</label>
+                        <select name="rating" required>
+                            <option value="">Chọn số sao</option>
+                            <?php for ($star = 5; $star >= 1; $star--): ?>
+                                <option value="<?php echo $star; ?>"><?php echo $star; ?> sao</option>
+                            <?php endfor; ?>
+                        </select>
+                        <label style="display:block; margin-top:10px;">Cảm nhận (không bắt buộc)</label>
+                        <textarea name="comment" rows="4" maxlength="2000" placeholder="Chia sẻ trải nghiệm của bạn"></textarea>
+                        <button type="submit" style="margin-top:10px;" onclick="return confirm('Xác nhận hoàn tất đơn hàng?');">Xác nhận hoàn tất</button>
+                    </form>
+                    <form class="card" method="post" action="index.php?act=return_customer_order">
+                        <input type="hidden" name="id" value="<?php echo (int) $order['id']; ?>">
+                        <h3>Yêu cầu hoàn trả</h3>
+                        <label>Lý do hoàn trả <strong style="color:var(--danger);">*</strong></label>
+                        <textarea name="ly_do_hoan" rows="5" maxlength="1000" required placeholder="Nhập lý do cần hoàn trả"></textarea>
+                        <button type="submit" class="btn-delete" style="margin-top:10px; border:0; background:#fee2e2;"
+                                onclick="return confirm('Xác nhận gửi yêu cầu hoàn trả?');">Gửi yêu cầu hoàn trả</button>
+                    </form>
+                </div>
+            <?php elseif (isCustomer() && !empty($order['review'])): ?>
+                <div style="grid-column:1 / -1; margin-top:10px;">
+                    <strong>Đánh giá của bạn:</strong> <?php echo str_repeat('★', (int) $order['review']['rating']); ?>
+                    <?php if (!empty($order['review']['comment'])): ?>
+                        <br><?php echo nl2br(htmlspecialchars($order['review']['comment'], ENT_QUOTES, 'UTF-8')); ?>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
         </div>
     </div>

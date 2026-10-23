@@ -36,6 +36,41 @@ switch ($act)
                 echo "<a href='index.php?act=customer_orders'>Quay lại lịch sử đơn hàng</a>";
                 exit;
             }
+        case 'complete_customer_order':
+            requireCustomer();
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            $rating = filter_input(INPUT_POST, 'rating', FILTER_VALIDATE_INT);
+            $comment = trim($_POST['comment'] ?? '');
+            if (!$id || $rating === false || $rating < 1 || $rating > 5 || mb_strlen($comment) > 2000) {
+                echo "<script>alert('Vui lòng chọn đánh giá từ 1 đến 5 sao và nhập cảm nhận tối đa 2000 ký tự.'); window.location.href='index.php?act=customer_orders';</script>";
+                exit;
+            }
+            try {
+                (new controller())->completeCustomerOrder($id, customerId(), $rating, $comment);
+                header('Location: index.php?act=order_detail&id=' . $id);
+                exit;
+            } catch (Throwable $e) {
+                echo "<script>alert(" . json_encode($e->getMessage(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP)
+                    . "); window.location.href='index.php?act=order_detail&id=" . (int) $id . "';</script>";
+                exit;
+            }
+        case 'return_customer_order':
+            requireCustomer();
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            $reason = trim($_POST['ly_do_hoan'] ?? '');
+            if (!$id || $reason === '' || mb_strlen($reason) > 1000) {
+                echo "<script>alert('Vui lòng nhập lý do hoàn trả hợp lệ.'); window.location.href='index.php?act=customer_orders';</script>";
+                exit;
+            }
+            try {
+                $returnedOrder = (new controller())->returnCustomerOrder($id, customerId(), $reason);
+                sendCustomerReturnToShop($returnedOrder);
+                header('Location: index.php?act=order_detail&id=' . $id);
+                exit;
+            } catch (Throwable $e) {
+                echo "<script>alert(" . json_encode($e->getMessage(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP)
+                    . "); window.location.href='index.php?act=order_detail&id=" . (int) $id . "';</script>";
+                exit;
+            }
 }
 ?>
-

@@ -51,6 +51,11 @@ trị của quản lý.
 
 - Huỷ đơn và nhập lý do huỷ; hệ thống xử lý hoàn tồn kho theo nghiệp vụ.
 - Nhận email khi khách hàng yêu cầu huỷ đơn.
+- Khi đơn ở trạng thái `Đã giao`, khách hàng có thể xác nhận hoàn tất kèm đánh
+  giá 1-5 sao và cảm nhận, hoặc yêu cầu hoàn trả bắt buộc có lý do. Yêu cầu
+  hoàn trả chuyển sang trạng thái chờ shop duyệt; chỉ khi quản lý xác nhận,
+  đơn mới thành `Hoàn trả hàng`, hoàn tồn kho trong transaction và hoàn tất
+  xử lý.
 - Thêm, sửa và xoá danh mục.
 - Thêm, sửa và xoá sản phẩm.
 - Không cho xoá sản phẩm đang thuộc bất kỳ đơn chưa huỷ nào; chỉ cho xoá sản
@@ -64,6 +69,10 @@ trị của quản lý.
   được cộng lại vào tồn kho trong cùng transaction.
 - Quản lý tên, giá, số lượng tồn kho, mô tả, khuyến mãi, danh mục và hình ảnh
   sản phẩm.
+- Danh sách quản lý sản phẩm ưu tiên sản phẩm bán chạy trong ngày, hiển thị số
+  lượng đã bán hôm nay và đánh dấu rõ sản phẩm hết hàng bằng màu sắc riêng.
+  Khu vực đề xuất “Sản phẩm bán chạy” cũng lấy dữ liệu trong ngày và vẫn hiển
+  thị sản phẩm dù đã hết hàng.
 - Tự động đề xuất mã sản phẩm tiếp theo.
 - Kiểm tra dữ liệu trùng bằng request AJAX và kiểm tra lại ở server.
 

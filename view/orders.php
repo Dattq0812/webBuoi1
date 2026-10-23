@@ -5,6 +5,8 @@ $statusLabels = [
     'da_xac_nhan' => 'Đã xác nhận',
     'dang_giao' => 'Đang giao',
     'da_giao' => 'Đã giao',
+    'yeu_cau_hoan_tra' => 'Chờ duyệt hoàn trả',
+    'hoan_tat' => 'Đã hoàn tất',
     'da_huy' => 'Đã huỷ',
     'hoan_tra' => 'Hoàn trả hàng',
 ];
@@ -12,7 +14,7 @@ $nextStatuses = [
     'cho_xac_nhan' => 'da_xac_nhan',
     'da_xac_nhan' => 'dang_giao',
     'dang_giao' => 'da_giao',
-    'da_giao' => 'hoan_tra',
+    'yeu_cau_hoan_tra' => 'hoan_tra',
 ];
 ?>
 <div class="container">

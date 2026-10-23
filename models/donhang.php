@@ -3,6 +3,21 @@ require_once __DIR__ . "/xl_database.php";
 
 class donhang
 {
+    public function __construct()
+    {
+        (new xl_data())->executePrepared(
+            "CREATE TABLE IF NOT EXISTS order_reviews (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                order_id INT NOT NULL UNIQUE,
+                customer_id INT NOT NULL,
+                rating TINYINT NOT NULL,
+                comment TEXT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT chk_order_review_rating CHECK (rating BETWEEN 1 AND 5)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+        );
+    }
+
     public function create(array $order, array $items): void
     {
         $xl = new xl_data();
@@ -207,7 +222,89 @@ class donhang
              ORDER BY ct.id",
             [':donhang_id' => $id]
         );
+        $order['review'] = $xl->readPrepared(
+            "SELECT rating, comment, created_at
+             FROM order_reviews
+             WHERE order_id = :order_id
+             LIMIT 1",
+            [':order_id' => $id]
+        );
         return $order;
+    }
+
+    public function completeByCustomer(int $id, int $customerId, int $rating, string $comment): void
+    {
+        if ($rating < 1 || $rating > 5) {
+            throw new InvalidArgumentException('Đánh giá phải từ 1 đến 5 sao.');
+        }
+        $comment = trim($comment);
+        if (mb_strlen($comment) > 2000) {
+            throw new InvalidArgumentException('Cảm nhận không được vượt quá 2000 ký tự.');
+        }
+
+        (new xl_data())->transaction(function (PDO $connection) use ($id, $customerId, $rating, $comment): void {
+            $orderStatement = $connection->prepare(
+                "SELECT id FROM donhang
+                 WHERE id = :id AND customer_id = :customer_id AND trang_thai = 'da_giao'
+                 FOR UPDATE"
+            );
+            $orderStatement->execute([':id' => $id, ':customer_id' => $customerId]);
+            if (!$orderStatement->fetch(PDO::FETCH_ASSOC)) {
+                throw new RuntimeException('Đơn hàng không còn ở trạng thái có thể hoàn tất.');
+            }
+
+            $reviewStatement = $connection->prepare(
+                "INSERT INTO order_reviews (order_id, customer_id, rating, comment)
+                 VALUES (:order_id, :customer_id, :rating, :comment)"
+            );
+            $reviewStatement->execute([
+                ':order_id' => $id,
+                ':customer_id' => $customerId,
+                ':rating' => $rating,
+                ':comment' => $comment !== '' ? $comment : null,
+            ]);
+
+            $statusStatement = $connection->prepare(
+                "UPDATE donhang SET trang_thai = 'hoan_tat'
+                 WHERE id = :id AND customer_id = :customer_id AND trang_thai = 'da_giao'"
+            );
+            $statusStatement->execute([':id' => $id, ':customer_id' => $customerId]);
+            if ($statusStatement->rowCount() !== 1) {
+                throw new RuntimeException('Không thể hoàn tất đơn hàng.');
+            }
+        });
+    }
+
+    public function returnByCustomer(int $id, int $customerId, string $reason): array
+    {
+        $reason = trim($reason);
+        if ($reason === '' || mb_strlen($reason) > 1000) {
+            throw new InvalidArgumentException('Vui lòng nhập lý do hoàn trả hợp lệ.');
+        }
+        $returnedOrder = [];
+        (new xl_data())->transaction(function (PDO $connection) use ($id, $customerId, $reason, &$returnedOrder): void {
+            $orderStatement = $connection->prepare(
+                "SELECT * FROM donhang
+                 WHERE id = :id AND customer_id = :customer_id AND trang_thai = 'da_giao'
+                 FOR UPDATE"
+            );
+            $orderStatement->execute([':id' => $id, ':customer_id' => $customerId]);
+            $order = $orderStatement->fetch(PDO::FETCH_ASSOC);
+            if (!$order) {
+                throw new RuntimeException('Đơn hàng không còn ở trạng thái có thể hoàn trả.');
+            }
+            $update = $connection->prepare(
+                "UPDATE donhang SET trang_thai = 'yeu_cau_hoan_tra', ly_do_huy = :reason
+                 WHERE id = :id AND customer_id = :customer_id AND trang_thai = 'da_giao'"
+            );
+            $update->execute([':reason' => $reason, ':id' => $id, ':customer_id' => $customerId]);
+            if ($update->rowCount() !== 1) {
+                throw new RuntimeException('Không thể cập nhật trạng thái hoàn trả.');
+            }
+            $order['ly_do_huy'] = $reason;
+            $returnedOrder = $order;
+        });
+        return $returnedOrder;
     }
 
     public function updateStatus(int $id, string $currentStatus, string $nextStatus): bool

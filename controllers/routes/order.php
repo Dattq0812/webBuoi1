@@ -43,7 +43,7 @@ switch ($act)
                 'cho_xac_nhan' => 'da_xac_nhan',
                 'da_xac_nhan' => 'dang_giao',
                 'dang_giao' => 'da_giao',
-                'da_giao' => 'hoan_tra',
+                'yeu_cau_hoan_tra' => 'hoan_tra',
             ];
             if (!$id || !isset($statusFlow[$currentStatus]) || $statusFlow[$currentStatus] !== $nextStatus) {
                 echo "<script>alert('Thông tin trạng thái không hợp lệ.'); window.location.href='index.php?act=orders';</script>";
@@ -78,4 +78,3 @@ switch ($act)
             }
 }
 ?>
-

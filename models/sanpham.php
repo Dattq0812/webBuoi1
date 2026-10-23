@@ -100,23 +100,37 @@ class sanpham {
 
     // Hàm Lấy tất cả danh sách sản phẩm
     public function getallsanpham(){
-        $xl = new xl_data();$sql = "select * from sanpham";
-        return $xl->readitem($sql);
+        $xl = new xl_data();
+        return $xl->readPreparedAll(
+            "SELECT sp.*, COALESCE(today_sales.sold_today, 0) AS sold_today
+             FROM sanpham sp
+             LEFT JOIN (
+                 SELECT ct.id_sp, SUM(ct.so_luong) AS sold_today
+                 FROM chitiet_donhang ct
+                 INNER JOIN donhang d ON d.id = ct.donhang_id
+                 WHERE DATE(d.ngay_dat) = CURDATE()
+                   AND d.trang_thai NOT IN ('da_huy', 'hoan_tra')
+                 GROUP BY ct.id_sp
+             ) AS today_sales ON today_sales.id_sp = sp.id_sp
+             ORDER BY sold_today DESC, (sp.Mount = 0) ASC, sp.id_sp ASC"
+        );
     }
 
     public function getBestSelling(int $limit = 6): array {
         $limit = max(1, min($limit, 24));
         $xl = new xl_data();
         return $xl->readPreparedAll(
-            "SELECT sp.*, COALESCE(SUM(
-                        CASE WHEN d.trang_thai <> 'da_huy' THEN ct.so_luong ELSE 0 END
-                    ), 0) AS sold_quantity
+            "SELECT sp.*, today_sales.sold_today
              FROM sanpham sp
-             LEFT JOIN chitiet_donhang ct ON ct.id_sp = sp.id_sp
-             LEFT JOIN donhang d ON d.id = ct.donhang_id
-             WHERE sp.Mount > 0
-             GROUP BY sp.id_sp
-             ORDER BY sold_quantity DESC, sp.Date_import DESC, sp.id_sp DESC
+             INNER JOIN (
+                 SELECT ct.id_sp, SUM(ct.so_luong) AS sold_today
+                 FROM chitiet_donhang ct
+                 INNER JOIN donhang d ON d.id = ct.donhang_id
+                 WHERE DATE(d.ngay_dat) = CURDATE()
+                   AND d.trang_thai NOT IN ('da_huy', 'hoan_tra')
+                 GROUP BY ct.id_sp
+             ) AS today_sales ON today_sales.id_sp = sp.id_sp
+             ORDER BY today_sales.sold_today DESC, sp.Date_import DESC, sp.id_sp DESC
              LIMIT " . $limit
         );
     }

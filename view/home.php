@@ -149,7 +149,9 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
             $imageName = basename((string) ($product['image'] ?? ''));
             $imageFile = __DIR__ . '/images/' . $imageName;
             ?>
-            <a class="product-card" href="index.php?act=chitietsp&amp;idsp=<?php echo (int) $product['id_sp']; ?>">
+            <?php $productOutOfStock = (int) ($product['Mount'] ?? 0) <= 0; ?>
+            <a class="product-card<?php echo $productOutOfStock ? ' product-card-out-of-stock' : ''; ?>"
+               href="index.php?act=chitietsp&amp;idsp=<?php echo (int) $product['id_sp']; ?>">
                 <div class="product-image">
                     <?php if ($imageName !== '' && is_file($imageFile)): ?>
                         <img src="view/images/<?php echo rawurlencode($imageName); ?>"
@@ -161,6 +163,12 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
                 <div class="product-card-body">
                     <h3><?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?></h3>
                     <strong><?php echo number_format((float) $product['Price'], 0, ',', '.'); ?>đ</strong>
+                    <span class="<?php echo $productOutOfStock ? 'product-stock-out' : 'product-stock-in'; ?>">
+                        <?php echo $productOutOfStock ? 'Hết hàng' : 'Còn hàng'; ?>
+                    </span>
+                    <?php if (isset($product['sold_today'])): ?>
+                        <span class="product-today-sales">Đã bán hôm nay: <?php echo (int) $product['sold_today']; ?></span>
+                    <?php endif; ?>
                     <span class="product-link">Xem chi tiết →</span>
                 </div>
             </a>
@@ -173,7 +181,7 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
         <div class="page-heading">
             <div>
                 <h2>Sản phẩm bán chạy</h2>
-                <p class="subtitle">Những sản phẩm được khách hàng lựa chọn nhiều nhất.</p>
+                <p class="subtitle">Sản phẩm bán nhiều nhất trong ngày, kể cả sản phẩm đã hết hàng.</p>
             </div>
         </div>
         <?php $renderProducts($sanPhamBanChay ?? [], 'recommendations-grid'); ?>

@@ -5,6 +5,8 @@ $statusLabels = [
     'da_xac_nhan' => 'Đã xác nhận',
     'dang_giao' => 'Đang giao',
     'da_giao' => 'Đã giao',
+    'yeu_cau_hoan_tra' => 'Chờ duyệt hoàn trả',
+    'hoan_tat' => 'Đã hoàn tất',
     'da_huy' => 'Đã huỷ',
     'hoan_tra' => 'Hoàn trả hàng',
 ];
@@ -33,7 +35,11 @@ $statusLabels = [
                         <a class="btn btn-edit" href="index.php?act=order_detail&amp;id=<?php echo (int) $order['id']; ?>">
                             Xem chi tiết
                         </a>
-                        <?php if ($status === 'cho_xac_nhan'): ?>
+                        <?php if ($status === 'da_giao'): ?>
+                            <a class="btn btn-save" href="index.php?act=order_detail&amp;id=<?php echo (int) $order['id']; ?>">
+                                Hoàn tất / Hoàn trả
+                            </a>
+                        <?php elseif ($status === 'cho_xac_nhan'): ?>
                             <button type="button" class="btn-delete" style="border:0; background:none;" onclick="document.getElementById('customer-cancel-<?php echo (int) $order['id']; ?>').hidden = false; this.hidden = true;">Huỷ đơn</button>
                             <form id="customer-cancel-<?php echo (int) $order['id']; ?>" method="post" action="index.php?act=cancel_customer_order" hidden>
                                 <input type="hidden" name="id" value="<?php echo (int) $order['id']; ?>">
