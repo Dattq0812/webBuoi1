@@ -73,6 +73,9 @@ trị của quản lý.
   lượng đã bán hôm nay và đánh dấu rõ sản phẩm hết hàng bằng màu sắc riêng.
   Khu vực đề xuất “Sản phẩm bán chạy” cũng lấy dữ liệu trong ngày và vẫn hiển
   thị sản phẩm dù đã hết hàng.
+- Danh sách đơn hàng và danh sách khách hàng sử dụng truy vấn tương thích với
+  MySQL `ONLY_FULL_GROUP_BY`; khi chưa có đơn, màn hình hiển thị danh sách rỗng
+  và thống kê hiển thị 0 thay vì lỗi SQL.
 - Tự động đề xuất mã sản phẩm tiếp theo.
 - Kiểm tra dữ liệu trùng bằng request AJAX và kiểm tra lại ở server.
 

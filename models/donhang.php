@@ -92,13 +92,14 @@ class donhang
     {
         $xl = new xl_data();
         return $xl->readPreparedAll(
-            "SELECT d.*, GROUP_CONCAT(
-                CONCAT(ct.ten_sanpham, ' (', ct.so_luong, ')')
-                ORDER BY ct.id SEPARATOR ', '
-             ) AS san_pham
+            "SELECT d.*,
+                (SELECT GROUP_CONCAT(
+                    CONCAT(ct.ten_sanpham, ' (', ct.so_luong, ')')
+                    ORDER BY ct.id SEPARATOR ', '
+                 )
+                 FROM chitiet_donhang ct
+                 WHERE ct.donhang_id = d.id) AS san_pham
              FROM donhang d
-             LEFT JOIN chitiet_donhang ct ON ct.donhang_id = d.id
-             GROUP BY d.id
              ORDER BY d.ngay_dat DESC, d.id DESC"
         );
     }
@@ -181,14 +182,15 @@ class donhang
     {
         $xl = new xl_data();
         return $xl->readPreparedAll(
-            "SELECT d.*, GROUP_CONCAT(
-                CONCAT(ct.ten_sanpham, ' (', ct.so_luong, ')')
-                ORDER BY ct.id SEPARATOR ', '
-             ) AS san_pham
+            "SELECT d.*,
+                (SELECT GROUP_CONCAT(
+                    CONCAT(ct.ten_sanpham, ' (', ct.so_luong, ')')
+                    ORDER BY ct.id SEPARATOR ', '
+                 )
+                 FROM chitiet_donhang ct
+                 WHERE ct.donhang_id = d.id) AS san_pham
              FROM donhang d
-             LEFT JOIN chitiet_donhang ct ON ct.donhang_id = d.id
              WHERE d.customer_id = :customer_id
-             GROUP BY d.id
              ORDER BY d.ngay_dat DESC, d.id DESC",
             [':customer_id' => $customerId]
         );

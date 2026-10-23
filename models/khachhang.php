@@ -67,15 +67,20 @@ class khachhang
     public function getAllWithLoyalty(): array
     {
         $rows = (new xl_data())->readPreparedAll(
-            "SELECT
-                kh.*,
-                COALESCE(SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
-                    THEN d.tong_tien ELSE 0 END), 0) AS total_spending,
-                COALESCE(SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
-                    THEN 1 ELSE 0 END), 0) AS completed_orders
+            "SELECT kh.*,
+                COALESCE((
+                    SELECT SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
+                        THEN d.tong_tien ELSE 0 END)
+                    FROM donhang d
+                    WHERE d.customer_id = kh.id
+                ), 0) AS total_spending,
+                COALESCE((
+                    SELECT SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
+                        THEN 1 ELSE 0 END)
+                    FROM donhang d
+                    WHERE d.customer_id = kh.id
+                ), 0) AS completed_orders
              FROM khachhang kh
-             LEFT JOIN donhang d ON d.customer_id = kh.id
-             GROUP BY kh.id
              ORDER BY total_spending DESC, kh.id DESC"
         );
         foreach ($rows as &$row) {
