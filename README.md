@@ -172,7 +172,9 @@ trên đường truyền, ứng dụng phải được chạy qua HTTPS.
 
 ```text
 index.php                 Entry point, session và nạp cấu hình môi trường
-controllers/index.php     Router theo tham số act và xử lý nghiệp vụ request
+controllers/index.php     Dispatcher, phân phối act tới route controller tương ứng
+controllers/routes/        Controller theo từng nhóm: auth, customer, order, admin,
+                           product, catalog, cart và search
 controllers/controller.php Nghiệp vụ sản phẩm, danh mục, giỏ hàng và đơn hàng
 models/                   Truy vấn database và các model dữ liệu
 services/auth.php         Nạp .env và kiểm tra quyền quản lý

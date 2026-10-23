@@ -11,7 +11,7 @@
     $act = isset($_REQUEST['act']) ? $_REQUEST['act'] : 'home';
 $_REQUEST['act'] = $act;
     if ($act === 'check_duplicate') {
-        require_once __DIR__ . "/controllers/index.php";
+        require_once __DIR__ . "/controllers/routes/search.php";
         exit;
     }
     require_once __DIR__ . "/view/header.php";
