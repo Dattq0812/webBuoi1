@@ -246,6 +246,9 @@ if(isset($_REQUEST['act']))
             $danhsach = $controller->hienthisanpham();
             $sanPhamBanChay = $controller->getBestSellingProducts();
             $sanPhamMoi = $controller->getNewestProducts();
+            if (isManager()) {
+                $revenueStatistics = $controller->getRevenueStatistics();
+            }
             include __DIR__ . "/../view/home.php";
             break;
         case 'hienthiDM':
@@ -259,6 +262,9 @@ if(isset($_REQUEST['act']))
             $danhsach = $controller->hienthisanpham();
             $sanPhamBanChay = $controller->getBestSellingProducts();
             $sanPhamMoi = $controller->getNewestProducts();
+            if (isManager()) {
+                $revenueStatistics = $controller->getRevenueStatistics();
+            }
             include __DIR__ . "/../view/home.php";
             break;
         case 'hienthiSP':
