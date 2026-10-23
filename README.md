@@ -42,6 +42,11 @@ trị của quản lý.
 - Nhận email khi khách hàng yêu cầu huỷ đơn.
 - Thêm, sửa và xoá danh mục.
 - Thêm, sửa và xoá sản phẩm.
+- Không cho xoá sản phẩm đang thuộc bất kỳ đơn chưa huỷ nào; chỉ cho xoá sản
+  phẩm khi tất cả đơn liên quan đã ở trạng thái `Đã huỷ`. Danh mục chứa sản
+  phẩm như vậy cũng không được xoá.
+- Khi đơn bị huỷ hoặc chuyển sang trạng thái `Hoàn trả hàng`, số lượng sản phẩm
+  được cộng lại vào tồn kho trong cùng transaction.
 - Quản lý tên, giá, số lượng tồn kho, mô tả, khuyến mãi, danh mục và hình ảnh
   sản phẩm.
 - Tự động đề xuất mã sản phẩm tiếp theo.

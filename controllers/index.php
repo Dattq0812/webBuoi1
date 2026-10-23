@@ -537,9 +537,9 @@ if(isset($_REQUEST['act']))
                         exit;
                         
                     } catch (Exception $e) {
-                        // Bắt lỗi SQL (ví dụ: Không thể xóa vì danh mục này đang chứa sản phẩm - lỗi khóa ngoại)
-                        echo "<h3 style='color:red'>LỖI SQL KHI XÓA: " . $e->getMessage() . "</h3>";
-                        echo "<a href='index.php?act=hienthiDM'>Quay lại</a>";
+                        echo "<script>alert("
+                            . json_encode($e->getMessage(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP)
+                            . "); window.location.href='index.php?act=hienthiDM';</script>";
                         exit;
                     }
                 } else {
@@ -652,10 +652,9 @@ if(isset($_REQUEST['act']))
                 echo "<script>window.location.href = 'index.php?act=hienthiSP';</script>";
                 exit;
             } catch (Exception $e) {
-                echo "<h3 style='color:red'>LỖI SQL KHI XÓA SẢN PHẨM: "
-                    . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8')
-                    . "</h3>";
-                echo "<a href='index.php?act=hienthiSP'>Quay lại</a>";
+                echo "<script>alert("
+                    . json_encode($e->getMessage(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP)
+                    . "); window.location.href='index.php?act=hienthiSP';</script>";
                 exit;
             }
 

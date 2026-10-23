@@ -1,11 +1,33 @@
+<?php
+$bannerProducts = array_values(array_filter($danhsach ?? [], static function (array $product): bool {
+    $imageName = basename((string) ($product['image'] ?? ''));
+    return $imageName !== '' && is_file(__DIR__ . '/images/' . $imageName);
+}));
+?>
+
 <div class="container">
-    <section class="card" style="padding:0; overflow:hidden; background:linear-gradient(120deg,#0f172a,#1d4ed8); color:#fff;">
-        <div style="padding:58px 52px; max-width:700px;">
+    <section class="card home-banner">
+        <div class="home-banner-content">
             <p style="color:#bfdbfe; font-weight:700; letter-spacing:1px;">CÔNG NGHỆ CHO CUỘC SỐNG</p>
             <h1 style="font-size:42px; margin-bottom:14px;">Nâng tầm trải nghiệm số của bạn</h1>
             <p style="color:#dbeafe; font-size:17px;">Khám phá laptop, smartphone, thiết bị thông minh và phụ kiện chính hãng với mức giá tốt mỗi ngày.</p>
             <a class="btn" style="background:#fff; color:#1d4ed8; margin-top:12px;" href="index.php?act=hienthiSP">Xem sản phẩm</a>
         </div>
+        <?php if ($bannerProducts): ?>
+            <div class="product-slider" aria-label="Sản phẩm nổi bật">
+                <div class="product-slider-track">
+                    <?php foreach ($bannerProducts as $index => $product): ?>
+                        <?php $imageName = basename((string) $product['image']); ?>
+                        <a class="product-slide<?php echo $index === 0 ? ' is-active' : ''; ?>"
+                           href="index.php?act=chitietsp&amp;idsp=<?php echo (int) $product['id_sp']; ?>">
+                            <img src="view/images/<?php echo rawurlencode($imageName); ?>"
+                                 alt="<?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <span><?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     </section>
 
     <?php if (isManager()): ?>
@@ -129,6 +151,85 @@
     </section>
 
     <style>
+        .home-banner {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+            min-height: 330px;
+            padding: 0;
+            overflow: hidden;
+            color: #fff;
+            background: linear-gradient(120deg,#0f172a,#1d4ed8);
+        }
+        .home-banner-content {
+            align-self: center;
+            padding: 58px 52px;
+        }
+        .product-slider {
+            position: relative;
+            min-height: 330px;
+            overflow: hidden;
+            background: linear-gradient(145deg, #2563eb, #0f172a);
+        }
+        .product-slider-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 330px;
+        }
+        .product-slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+            opacity: 0;
+            transform: translateX(80px);
+            transition: opacity .8s ease, transform .8s ease;
+            pointer-events: none;
+            text-decoration: none;
+        }
+        .product-slide.is-active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+        .product-slide img {
+            width: 100%;
+            height: 255px;
+            object-fit: contain;
+            filter: drop-shadow(0 18px 18px #02061766);
+        }
+        .product-slide span {
+            position: absolute;
+            right: 24px;
+            bottom: 18px;
+            left: 24px;
+            overflow: hidden;
+            color: #fff;
+            font-weight: 700;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        @media (max-width: 700px) {
+            .home-banner {
+                grid-template-columns: 1fr;
+            }
+            .home-banner-content {
+                padding: 34px 26px 24px;
+            }
+            .home-banner-content h1 {
+                font-size: 30px !important;
+            }
+            .product-slider,
+            .product-slider-track {
+                min-height: 250px;
+            }
+            .product-slide img {
+                height: 190px;
+            }
+        }
         .recommendations-grid {
             grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         }
@@ -144,3 +245,17 @@
         }
     </style>
 </div>
+
+<?php if (count($bannerProducts) > 1): ?>
+<script>
+    (() => {
+        const slides = document.querySelectorAll('.product-slide');
+        let current = 0;
+        window.setInterval(() => {
+            slides[current].classList.remove('is-active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('is-active');
+        }, 3200);
+    })();
+</script>
+<?php endif; ?>

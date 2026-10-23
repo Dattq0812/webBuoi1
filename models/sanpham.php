@@ -98,8 +98,27 @@ class sanpham {
 
     // Hàm Xóa sản phẩm theo ID
     public function xoasp(sanpham $sp){
-        $xl = new xl_data();$sql = "DELETE FROM sanpham WHERE `sanpham`.`id_sp` = " . $sp->getId();
-        $xl->execute_item($sql);
+        $xl = new xl_data();
+        $productId = (int) $sp->getId();
+        $usedInDeliveredOrder = $xl->readPrepared(
+            "SELECT 1
+             FROM chitiet_donhang ct
+             INNER JOIN donhang d ON d.id = ct.donhang_id
+             WHERE ct.id_sp = :product_id
+               AND d.trang_thai <> 'da_huy'
+             LIMIT 1",
+            [':product_id' => $productId]
+        );
+        if ($usedInDeliveredOrder) {
+            throw new RuntimeException(
+                'Không thể xóa sản phẩm vì sản phẩm đang thuộc một đơn chưa bị hủy.'
+            );
+        }
+
+        $xl->executePrepared(
+            "DELETE FROM sanpham WHERE id_sp = :id",
+            [':id' => $productId]
+        );
     }
 
     // Hàm Lấy thông tin 1 sản phẩm cụ thể

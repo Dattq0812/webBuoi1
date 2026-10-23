@@ -29,9 +29,28 @@ class danhmuc{
         
     }
     public function delete_dm(danhmuc $dm){
-        $xl = new xl_data() ;  
-        $sql = "delete from danhmuc where id    =  ".$dm->getId();
-        $xl->execute_item($sql) ;
+        $xl = new xl_data();
+        $categoryId = (int) $dm->getId();
+        $usedInDeliveredOrder = $xl->readPrepared(
+            "SELECT 1
+             FROM sanpham sp
+             INNER JOIN chitiet_donhang ct ON ct.id_sp = sp.id_sp
+             INNER JOIN donhang d ON d.id = ct.donhang_id
+             WHERE sp.id_danhmuc = :category_id
+               AND d.trang_thai <> 'da_huy'
+             LIMIT 1",
+            [':category_id' => $categoryId]
+        );
+        if ($usedInDeliveredOrder) {
+            throw new RuntimeException(
+                'Không thể xóa danh mục vì sản phẩm trong danh mục đang thuộc một đơn chưa bị hủy.'
+            );
+        }
+
+        $xl->executePrepared(
+            "DELETE FROM danhmuc WHERE id = :id",
+            [':id' => $categoryId]
+        );
     }
     public function update_dm(danhmuc $dm){
         $xl = new xl_data();

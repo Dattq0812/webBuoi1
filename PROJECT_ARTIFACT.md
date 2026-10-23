@@ -39,6 +39,10 @@
   `view/images/`.
 - Đơn hàng liên kết tài khoản qua `donhang.customer_id`.
 - Tồn kho được trừ khi đặt hàng và hoàn lại khi huỷ hợp lệ.
+- Không cho xoá sản phẩm còn thuộc đơn chưa huỷ; danh mục chứa sản phẩm này cũng
+  bị bảo vệ. Chỉ cho xoá khi mọi đơn liên quan đã ở trạng thái `da_huy`.
+- Đơn huỷ và đơn chuyển sang `hoan_tra` đều hoàn lại số lượng vào tồn kho bằng
+  transaction, tránh cập nhật trạng thái nhưng thiếu tồn kho.
 - Trạng thái được cập nhật một chiều bởi quản lý.
 - Khách chỉ được huỷ đơn của chính mình khi đơn còn `cho_xac_nhan`.
 

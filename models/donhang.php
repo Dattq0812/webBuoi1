@@ -159,16 +159,70 @@ class donhang
     public function updateStatus(int $id, string $currentStatus, string $nextStatus): bool
     {
         $xl = new xl_data();
-        return $xl->executePrepared(
-            "UPDATE donhang
-             SET trang_thai = :next_status
-             WHERE id = :id AND trang_thai = :current_status",
-            [
+        if ($nextStatus !== 'hoan_tra') {
+            return $xl->executePrepared(
+                "UPDATE donhang
+                 SET trang_thai = :next_status
+                 WHERE id = :id AND trang_thai = :current_status",
+                [
+                    ':next_status' => $nextStatus,
+                    ':id' => $id,
+                    ':current_status' => $currentStatus,
+                ]
+            );
+        }
+
+        $updated = false;
+        $xl->transaction(function (PDO $connection) use ($id, $currentStatus, $nextStatus, &$updated): void {
+            $orderStatement = $connection->prepare(
+                "SELECT id
+                 FROM donhang
+                 WHERE id = :id AND trang_thai = :current_status
+                 FOR UPDATE"
+            );
+            $orderStatement->execute([
+                ':id' => $id,
+                ':current_status' => $currentStatus,
+            ]);
+            if (!$orderStatement->fetch(PDO::FETCH_ASSOC)) {
+                return;
+            }
+
+            $itemsStatement = $connection->prepare(
+                "SELECT id_sp, so_luong
+                 FROM chitiet_donhang
+                 WHERE donhang_id = :donhang_id"
+            );
+            $itemsStatement->execute([':donhang_id' => $id]);
+            $items = $itemsStatement->fetchAll(PDO::FETCH_ASSOC);
+            $restoreStock = $connection->prepare(
+                "UPDATE sanpham
+                 SET Mount = Mount + :quantity
+                 WHERE id_sp = :id_sp"
+            );
+            foreach ($items as $item) {
+                $restoreStock->execute([
+                    ':quantity' => (int) $item['so_luong'],
+                    ':id_sp' => (int) $item['id_sp'],
+                ]);
+            }
+
+            $statusStatement = $connection->prepare(
+                "UPDATE donhang
+                 SET trang_thai = :next_status
+                 WHERE id = :id AND trang_thai = :current_status"
+            );
+            $statusStatement->execute([
                 ':next_status' => $nextStatus,
                 ':id' => $id,
                 ':current_status' => $currentStatus,
-            ]
-        );
+            ]);
+            $updated = $statusStatement->rowCount() === 1;
+            if (!$updated) {
+                throw new RuntimeException('Không thể cập nhật trạng thái trả hàng.');
+            }
+        });
+        return $updated;
     }
 
     public function cancel(int $id, string $reason, ?int $customerId = null): array
