@@ -139,5 +139,13 @@ class controller
     public function isDuplicate(string $field, string $value, ?int $excludeId = null): bool {
         return (new duplicate_checker())->exists($field, $value, $excludeId);
     }
+
+    public function getCustomerLoyalty(int $customerId): array {
+        return (new khachhang())->getLoyaltyInfo($customerId);
+    }
+
+    public function getCustomersWithLoyalty(): array {
+        return (new khachhang())->getAllWithLoyalty();
+    }
 }
 ?>

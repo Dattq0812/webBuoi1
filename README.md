@@ -12,6 +12,12 @@ trị của quản lý.
 - Xem danh sách sản phẩm, chi tiết sản phẩm và sản phẩm còn hàng.
 - Tìm kiếm sản phẩm theo tên hoặc mô tả; gợi ý được tải tự động theo từng ký
   tự nhập.
+- Khách hàng thân thiết được xếp hạng theo tổng chi tiêu hợp lệ: Silver trên
+  50.000.000đ (giảm 3%), Golden trên 150.000.000đ (giảm 5%), Platinum trên
+  500.000.000đ (giảm 10%) và Diamond trên 1.000.000.000đ (giảm 15%).
+  Ưu đãi được tự động áp dụng trên tổng bill khi đặt hàng.
+- Khách hàng xem hạng, tổng chi tiêu và quyền lợi trong hồ sơ; quản lý xem
+  danh sách khách hàng, số đơn, tổng chi tiêu, hạng và mức ưu đãi.
 - Trang chủ ưu tiên đề xuất sản phẩm bán chạy theo số lượng đã bán và sản phẩm
   mới lên kệ theo ngày nhập.
 - Thêm sản phẩm vào giỏ hàng, cập nhật số lượng và xoá sản phẩm.
@@ -185,6 +191,8 @@ vendor/                   Dependency Composer
 | `index.php?act=home` | Công khai | Trang chủ và danh sách sản phẩm |
 | `index.php?act=chitietsp&idsp=...` | Công khai | Chi tiết sản phẩm |
 | `index.php?act=search&q=...` | Công khai | Tìm kiếm sản phẩm |
+| `index.php?act=customer_profile` | Khách hàng | Hồ sơ và hạng thành viên |
+| `index.php?act=customers` | Quản lý | Danh sách khách hàng và hạng |
 | `index.php?act=register` | Công khai | Đăng ký khách hàng |
 | `index.php?act=login` | Công khai | Đăng nhập quản lý/khách hàng |
 | `index.php?act=logout` | Đã đăng nhập | Đăng xuất |

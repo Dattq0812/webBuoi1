@@ -45,6 +45,9 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
             <a class="card" href="index.php?act=orders" style="text-decoration:none;">
                 <div style="font-size:30px;">◷</div><h2>Đơn hàng</h2><p class="subtitle">Theo dõi và xử lý đơn hàng.</p>
             </a>
+            <a class="card" href="index.php?act=customers" style="text-decoration:none;">
+                <div style="font-size:30px;">★</div><h2>Khách hàng</h2><p class="subtitle">Theo dõi hạng và ưu đãi thân thiết.</p>
+            </a>
             <a class="card" href="#" style="text-decoration:none;">
                 <div style="font-size:30px;">☎</div><h2>Hỗ trợ</h2><p class="subtitle">Kết nối với khách hàng nhanh chóng.</p>
             </a>

@@ -36,6 +36,9 @@
   tại, loại trừ đơn đã huỷ.
 - Dashboard có biểu đồ doanh thu theo quý và nhập/xuất kho dựa trên bảng lịch
   sử `inventory_movements`.
+- Hệ thống khách hàng thân thiết tự tính tổng chi tiêu hợp lệ và xếp hạng
+  Silver, Golden, Platinum hoặc Diamond; ưu đãi tương ứng là 3%, 5%, 10% và
+  15%. Khách hàng xem trong hồ sơ, quản lý xem trong danh sách khách hàng.
 - Chi tiết đơn lưu snapshot tên, đơn giá và số lượng sản phẩm.
 - Email xác nhận đơn hàng đính kèm hình ảnh sản phẩm còn tồn tại trong thư mục
   `view/images/`.

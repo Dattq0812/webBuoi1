@@ -176,6 +176,11 @@ if(isset($_REQUEST['act']))
             $orders = (new controller())->getCustomerOrders(customerId());
             include __DIR__ . "/../view/customer_orders.php";
             break;
+        case 'customer_profile':
+            requireCustomer();
+            $customerLoyalty = (new controller())->getCustomerLoyalty(customerId());
+            include __DIR__ . "/../view/customer_profile.php";
+            break;
         case 'order_detail':
             $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
             if (!$id || $id <= 0) {
@@ -222,7 +227,13 @@ if(isset($_REQUEST['act']))
             $controller = new controller();
             $danhsach = $controller->hienthisanpham();
             $revenueStatistics = $controller->getRevenueStatistics();
+            $quarterlyStatistics = $controller->getQuarterlyStatistics();
             include __DIR__ . "/../view/home.php";
+            break;
+        case 'customers':
+            requireManager();
+            $customers = (new controller())->getCustomersWithLoyalty();
+            include __DIR__ . "/../view/customers.php";
             break;
         case 'orders':
             requireManager();
@@ -413,6 +424,7 @@ if(isset($_REQUEST['act']))
             foreach ($cartItems as $item) {
                 $cartTotal += $item['subtotal'];
             }
+            $customerLoyalty = $controller->getCustomerLoyalty(customerId());
             $voucherOptions = [
                 'TECH10' => ['type' => 'percent', 'value' => 10],
                 'TECH50K' => ['type' => 'fixed', 'value' => 50000],
@@ -452,6 +464,7 @@ if(isset($_REQUEST['act']))
             foreach ($cartItems as $item) {
                 $cartTotal += $item['subtotal'];
             }
+            $customerLoyalty = $controller->getCustomerLoyalty(customerId());
             if ($voucherCode !== '' && !isset($voucherOptions[$voucherCode])) {
                 echo "<script>alert('Mã voucher không hợp lệ.'); window.history.back();</script>";
                 exit;
@@ -464,6 +477,8 @@ if(isset($_REQUEST['act']))
                     : $voucher['value'];
                 $discount = min($cartTotal, $discount);
             }
+            $loyaltyDiscount = $cartTotal * (int) $customerLoyalty['tier']['discount'] / 100;
+            $discount = min($cartTotal, $discount + $loyaltyDiscount);
             $order = [
                 'customer_id' => customerId(),
                 'ma_donhang' => 'DH' . date('YmdHis') . strtoupper(bin2hex(random_bytes(2))),

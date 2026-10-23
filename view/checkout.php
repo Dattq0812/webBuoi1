@@ -1,6 +1,8 @@
 <?php
 $cartTotal = $cartTotal ?? 0;
 $voucherOptions = $voucherOptions ?? [];
+$customerLoyalty = $customerLoyalty ?? ['tier' => ['label' => 'Standard', 'discount' => 0], 'total_spending' => 0];
+$loyaltyTier = $customerLoyalty['tier'];
 ?>
 
 <div class="container">
@@ -33,6 +35,13 @@ $voucherOptions = $voucherOptions ?? [];
                    placeholder="Ví dụ: TECH10"
                    value="<?php echo htmlspecialchars($_POST['voucher_code'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
             <small class="subtitle">TECH10 giảm 10%; TECH50K giảm 50.000đ.</small><br><br>
+            <div class="card loyalty-summary" style="padding:15px; background:#fffbeb; border-color:#fcd34d;">
+                <strong>Hạng thành viên: <?php echo htmlspecialchars($loyaltyTier['label'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                <span> - Ưu đãi thành viên <?php echo (int) $loyaltyTier['discount']; ?>% trên đơn này.</span>
+                <small class="subtitle" style="display:block; margin-top:4px;">
+                    Tổng chi tiêu hợp lệ: <?php echo number_format((float) $customerLoyalty['total_spending'], 0, ',', '.'); ?>đ
+                </small>
+            </div><br>
             <div class="card" style="padding:15px; background:#eff6ff;">
                 <div>Tạm tính: <strong><?php echo number_format($cartTotal, 0, ',', '.'); ?>đ</strong></div>
                 <div>Giảm voucher: <strong id="discount-preview">0đ</strong></div>
@@ -58,6 +67,7 @@ function previewVoucher() {
         discount = voucher.type === 'percent' ? subtotal * voucher.value / 100 : voucher.value;
         discount = Math.min(subtotal, discount);
     }
+    discount = Math.min(subtotal, discount + subtotal * <?php echo (int) $loyaltyTier['discount']; ?> / 100);
     discountPreview.textContent = formatPrice(discount);
     totalPreview.textContent = formatPrice(subtotal - discount);
 }

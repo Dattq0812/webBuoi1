@@ -82,6 +82,25 @@
         .customer-account-info { display: flex; flex-direction: column; }
         .customer-account-name { color: #0f172a; font-size: 13px; font-weight: 800; }
         .customer-account-contact { color: var(--muted); font-size: 11px; }
+        .customer-profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .loyalty-card { background: linear-gradient(135deg, #fff7ed, #fffbeb); border-color: #fcd34d; }
+        .loyalty-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 800; }
+        .loyalty-standard { background: #64748b; }
+        .loyalty-silver { background: #64748b; }
+        .loyalty-golden { background: #d97706; }
+        .loyalty-platinum { background: #475569; }
+        .loyalty-diamond { background: #0891b2; }
+        .loyalty-total { margin-top: 18px; color: var(--primary); font-size: 20px; }
+        .loyalty-tier-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+        .loyalty-tier-list div { padding: 14px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; }
+        .loyalty-tier-list span { display: block; margin: 5px 0; color: var(--muted); font-size: 12px; }
+        .loyalty-tier-list b { color: var(--primary); }
+        @media (max-width: 800px) {
+            .customer-profile-grid, .loyalty-tier-list { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 520px) {
+            .customer-profile-grid, .loyalty-tier-list { grid-template-columns: 1fr; }
+        }
         main { padding: 34px 0 60px; }
         .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px; }
         h1, h2, p { margin-top: 0; }
@@ -202,11 +221,13 @@
                         <li><a href="index.php?act=hienthiDM">Danh mục</a></li>
                         <li><a href="index.php?act=hienthiSP">Sản phẩm</a></li>
                         <li><a href="index.php?act=orders">Đơn hàng</a></li>
+                        <li><a href="index.php?act=customers">Khách hàng</a></li>
                     <?php endif; ?>
                     <li><a href="index.php?act=cart">Giỏ hàng (<?php echo isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0; ?>)</a></li>
                     <?php if (isManager()): ?>
                         <li><a href="index.php?act=logout">Đăng xuất</a></li>
                     <?php elseif (isCustomer()): ?>
+                        <li><a href="index.php?act=customer_profile">Hồ sơ</a></li>
                         <li><a href="index.php?act=customer_orders">Đơn của tôi</a></li>
                         <li><a href="index.php?act=logout">Đăng xuất</a></li>
                     <?php else: ?>
@@ -225,7 +246,7 @@
                         ? mb_strtoupper(mb_substr($customerName, 0, 1, 'UTF-8'), 'UTF-8')
                         : strtoupper(substr($customerName, 0, 1));
                 ?>
-                <a class="customer-account" href="index.php?act=customer_orders" title="Xem thông tin đơn hàng của bạn">
+                <a class="customer-account" href="index.php?act=customer_profile" title="Xem hồ sơ và hạng thành viên">
                     <span class="customer-avatar"><?php echo htmlspecialchars($customerInitial, ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="customer-account-info">
                         <span class="customer-account-name"><?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?></span>
