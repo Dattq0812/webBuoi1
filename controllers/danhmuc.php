@@ -22,28 +22,47 @@ class danhmuc{
         $result = $xl->readitem($sql) ;
         return $result ;
     }
+    public function getNextId(): int
+    {
+        $rows = (new xl_data())->readPreparedAll(
+            "SELECT id FROM danhmuc ORDER BY id ASC"
+        );
+        $nextId = 1;
+        foreach ($rows as $row) {
+            $id = (int) $row['id'];
+            if ($id === $nextId) {
+                $nextId++;
+            } elseif ($id > $nextId) {
+                break;
+            }
+        }
+        return $nextId;
+    }
+
     public function add_Danhmuc(danhmuc $dm) {
         $xl = new xl_data();  
-        $sql = "INSERT INTO danhmuc (`name`) VALUES ('" . $dm->getName() . "')";
-        $xl->execute_item($sql);
+        $xl->executePrepared(
+            "INSERT INTO danhmuc (id, `name`) VALUES (:id, :name)",
+            [
+                ':id' => $this->getNextId(),
+                ':name' => $dm->getName(),
+            ]
+        );
         
     }
     public function delete_dm(danhmuc $dm){
         $xl = new xl_data();
         $categoryId = (int) $dm->getId();
-        $usedInDeliveredOrder = $xl->readPrepared(
+        $categoryProduct = $xl->readPrepared(
             "SELECT 1
-             FROM sanpham sp
-             INNER JOIN chitiet_donhang ct ON ct.id_sp = sp.id_sp
-             INNER JOIN donhang d ON d.id = ct.donhang_id
-             WHERE sp.id_danhmuc = :category_id
-               AND d.trang_thai <> 'da_huy'
+             FROM sanpham
+             WHERE id_danhmuc = :category_id
              LIMIT 1",
             [':category_id' => $categoryId]
         );
-        if ($usedInDeliveredOrder) {
+        if ($categoryProduct) {
             throw new RuntimeException(
-                'Không thể xóa danh mục vì sản phẩm trong danh mục đang thuộc một đơn chưa bị hủy.'
+                'Không thể xóa danh mục vì danh mục vẫn còn sản phẩm. Vui lòng chuyển hoặc xóa sản phẩm trước.'
             );
         }
 

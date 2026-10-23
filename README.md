@@ -56,6 +56,10 @@ trị của quản lý.
 - Không cho xoá sản phẩm đang thuộc bất kỳ đơn chưa huỷ nào; chỉ cho xoá sản
   phẩm khi tất cả đơn liên quan đã ở trạng thái `Đã huỷ`. Danh mục chứa sản
   phẩm như vậy cũng không được xoá.
+- Không cho xoá danh mục khi danh mục vẫn còn bất kỳ sản phẩm nào, kể cả khi
+  các đơn liên quan của sản phẩm đã bị huỷ.
+- ID danh mục và sản phẩm mới sẽ ưu tiên sử dụng số nhỏ nhất còn trống, nên
+  việc xoá một bản ghi không làm ID mới bị nhảy số không cần thiết.
 - Khi đơn bị huỷ hoặc chuyển sang trạng thái `Hoàn trả hàng`, số lượng sản phẩm
   được cộng lại vào tồn kho trong cùng transaction.
 - Quản lý tên, giá, số lượng tồn kho, mô tả, khuyến mãi, danh mục và hình ảnh

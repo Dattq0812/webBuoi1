@@ -158,8 +158,17 @@ class sanpham {
 
     public function getNextId(): int {
         $xl = new xl_data();
-        $result = $xl->readitem("SELECT COALESCE(MAX(id_sp), 0) + 1 AS next_id FROM sanpham");
-        return (int) ($result[0]['next_id'] ?? 1);
+        $rows = $xl->readPreparedAll("SELECT id_sp FROM sanpham ORDER BY id_sp ASC");
+        $nextId = 1;
+        foreach ($rows as $row) {
+            $id = (int) $row['id_sp'];
+            if ($id === $nextId) {
+                $nextId++;
+            } elseif ($id > $nextId) {
+                break;
+            }
+        }
+        return $nextId;
     }
 
     // Hàm Xóa sản phẩm theo ID
