@@ -30,6 +30,9 @@ $statusLabels = [
                         <?php if ($status === 'da_huy' && !empty($order['ly_do_huy'])): ?><br><small>Lý do: <?php echo htmlspecialchars($order['ly_do_huy'], ENT_QUOTES, 'UTF-8'); ?></small><?php endif; ?>
                     </td>
                     <td>
+                        <a class="btn btn-edit" href="index.php?act=order_detail&amp;id=<?php echo (int) $order['id']; ?>">
+                            Xem chi tiết
+                        </a>
                         <?php if ($status === 'cho_xac_nhan'): ?>
                             <button type="button" class="btn-delete" style="border:0; background:none;" onclick="document.getElementById('customer-cancel-<?php echo (int) $order['id']; ?>').hidden = false; this.hidden = true;">Huỷ đơn</button>
                             <form id="customer-cancel-<?php echo (int) $order['id']; ?>" method="post" action="index.php?act=cancel_customer_order" hidden>

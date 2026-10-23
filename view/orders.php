@@ -21,10 +21,10 @@ $nextStatuses = [
     </div>
     <div style="overflow-x:auto;">
         <table>
-            <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng tiền</th><th>Ngày đặt</th><th>Trạng thái</th></tr></thead>
+            <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng tiền</th><th>Ngày đặt</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
             <?php if (!$orders): ?>
-                <tr><td colspan="6" class="empty">Chưa có đơn hàng nào.</td></tr>
+                <tr><td colspan="7" class="empty">Chưa có đơn hàng nào.</td></tr>
             <?php else: foreach ($orders as $order): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($order['ma_donhang'], ENT_QUOTES, 'UTF-8'); ?></td>
@@ -63,6 +63,11 @@ $nextStatuses = [
                         <?php elseif (!isset($nextStatuses[$currentStatus])): ?>
                             <small class="subtitle">Đã hoàn tất</small>
                         <?php endif; ?>
+                    </td>
+                    <td>
+                        <a class="btn btn-edit" href="index.php?act=order_detail&amp;id=<?php echo (int) $order['id']; ?>">
+                            Xem chi tiết
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; endif; ?>

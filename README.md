@@ -182,6 +182,7 @@ vendor/                   Dependency Composer
 | `index.php?act=checkout` | Khách hàng | Mở trang thanh toán |
 | `index.php?act=placeorder` | Khách hàng | Tạo đơn hàng |
 | `index.php?act=customer_orders` | Khách hàng | Xem đơn hàng của mình |
+| `index.php?act=order_detail&id=...` | Khách hàng/Quản lý | Xem chi tiết một đơn hàng |
 | `index.php?act=cancel_customer_order` | Khách hàng | Yêu cầu huỷ đơn |
 | `index.php?act=admin` | Quản lý | Trang quản trị |
 | `index.php?act=orders` | Quản lý | Quản lý đơn hàng |

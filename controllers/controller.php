@@ -119,6 +119,10 @@ class controller
         return (new donhang())->getByCustomer($customerId);
     }
 
+    public function getOrderDetail(int $id, ?int $customerId = null): array {
+        return (new donhang())->getDetail($id, $customerId);
+    }
+
     public function isDuplicate(string $field, string $value, ?int $excludeId = null): bool {
         return (new duplicate_checker())->exists($field, $value, $excludeId);
     }

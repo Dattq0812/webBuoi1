@@ -95,6 +95,37 @@ class donhang
         );
     }
 
+    public function getDetail(int $id, ?int $customerId = null): array
+    {
+        $xl = new xl_data();
+        $customerClause = $customerId === null ? '' : ' AND d.customer_id = :customer_id';
+        $params = [':id' => $id];
+        if ($customerId !== null) {
+            $params[':customer_id'] = $customerId;
+        }
+
+        $order = $xl->readPrepared(
+            "SELECT d.*
+             FROM donhang d
+             WHERE d.id = :id" . $customerClause . "
+             LIMIT 1",
+            $params
+        );
+        if (!$order) {
+            return [];
+        }
+
+        $order['items'] = $xl->readPreparedAll(
+            "SELECT ct.*, sp.image
+             FROM chitiet_donhang ct
+             LEFT JOIN sanpham sp ON sp.id_sp = ct.id_sp
+             WHERE ct.donhang_id = :donhang_id
+             ORDER BY ct.id",
+            [':donhang_id' => $id]
+        );
+        return $order;
+    }
+
     public function updateStatus(int $id, string $currentStatus, string $nextStatus): bool
     {
         $xl = new xl_data();

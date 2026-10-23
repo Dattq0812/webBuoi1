@@ -146,6 +146,28 @@ if(isset($_REQUEST['act']))
             $orders = (new controller())->getCustomerOrders(customerId());
             include __DIR__ . "/../view/customer_orders.php";
             break;
+        case 'order_detail':
+            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+            if (!$id || $id <= 0) {
+                echo "<script>alert('Mã đơn hàng không hợp lệ.'); window.history.back();</script>";
+                exit;
+            }
+            $orderController = new controller();
+            if (isManager()) {
+                $orderDetail = $orderController->getOrderDetail($id);
+            } elseif (isCustomer()) {
+                $orderDetail = $orderController->getOrderDetail($id, customerId());
+            } else {
+                header('Location: index.php?act=login');
+                exit;
+            }
+            if (!$orderDetail) {
+                http_response_code(404);
+                echo '<div class="container"><div class="card empty">Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn này.</div></div>';
+                exit;
+            }
+            include __DIR__ . "/../view/order_detail.php";
+            break;
         case 'cancel_customer_order':
             requireCustomer();
             $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
@@ -196,7 +218,8 @@ if(isset($_REQUEST['act']))
                 echo "<script>alert('Đơn hàng đã được cập nhật hoặc trạng thái không còn hợp lệ.'); window.location.href='index.php?act=orders';</script>";
                 exit;
             }
-            header('Location: index.php?act=orders');
+            $returnToDetail = ($_POST['return_to'] ?? '') === 'order_detail';
+            header('Location: index.php?act=' . ($returnToDetail ? 'order_detail&id=' . $id : 'orders'));
             exit;
         case 'cancel_order':
             requireManager();
