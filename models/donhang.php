@@ -74,7 +74,7 @@ class donhang
              FROM donhang d
              LEFT JOIN chitiet_donhang ct ON ct.donhang_id = d.id
              GROUP BY d.id
-             ORDER BY d.ngay_dat DESC"
+             ORDER BY d.ngay_dat DESC, d.id DESC"
         );
     }
 
@@ -120,7 +120,7 @@ class donhang
              LEFT JOIN chitiet_donhang ct ON ct.donhang_id = d.id
              WHERE d.customer_id = :customer_id
              GROUP BY d.id
-             ORDER BY d.ngay_dat DESC",
+             ORDER BY d.ngay_dat DESC, d.id DESC",
             [':customer_id' => $customerId]
         );
     }
