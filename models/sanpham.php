@@ -61,6 +61,35 @@ class sanpham {
         return $xl->readitem($sql);
     }
 
+    public function getBestSelling(int $limit = 6): array {
+        $limit = max(1, min($limit, 24));
+        $xl = new xl_data();
+        return $xl->readPreparedAll(
+            "SELECT sp.*, COALESCE(SUM(
+                        CASE WHEN d.trang_thai <> 'da_huy' THEN ct.so_luong ELSE 0 END
+                    ), 0) AS sold_quantity
+             FROM sanpham sp
+             LEFT JOIN chitiet_donhang ct ON ct.id_sp = sp.id_sp
+             LEFT JOIN donhang d ON d.id = ct.donhang_id
+             WHERE sp.Mount > 0
+             GROUP BY sp.id_sp
+             ORDER BY sold_quantity DESC, sp.Date_import DESC, sp.id_sp DESC
+             LIMIT " . $limit
+        );
+    }
+
+    public function getNewest(int $limit = 6): array {
+        $limit = max(1, min($limit, 24));
+        $xl = new xl_data();
+        return $xl->readPreparedAll(
+            "SELECT *
+             FROM sanpham
+             WHERE Mount > 0
+             ORDER BY Date_import DESC, id_sp DESC
+             LIMIT " . $limit
+        );
+    }
+
     public function getNextId(): int {
         $xl = new xl_data();
         $result = $xl->readitem("SELECT COALESCE(MAX(id_sp), 0) + 1 AS next_id FROM sanpham");

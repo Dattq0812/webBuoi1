@@ -1,9 +1,35 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <?php
+    $pageTitle = 'TechZone - Thiết bị công nghệ';
+    $pageDescription = 'Khám phá sản phẩm công nghệ chính hãng tại TechZone.';
+    if (($GLOBALS['act'] ?? ($_REQUEST['act'] ?? 'home')) === 'chitietsp') {
+        require_once __DIR__ . '/../models/xl_database.php';
+        require_once __DIR__ . '/../models/sanpham.php';
+        $productId = filter_input(INPUT_GET, 'idsp', FILTER_VALIDATE_INT);
+        if ($productId && $productId > 0) {
+            $productQuery = new sanpham();
+            $productQuery->setId($productId);
+            $productResult = $productQuery->motsp($productQuery);
+            if (!empty($productResult)) {
+                $seoProduct = $productResult[0];
+                $seoName = trim((string) ($seoProduct['Name'] ?? ''));
+                $seoDescription = trim(strip_tags((string) ($seoProduct['Decribe'] ?? '')));
+                $pageTitle = $seoName !== ''
+                    ? $seoName . ' | TechZone'
+                    : $pageTitle;
+                $pageDescription = $seoDescription !== ''
+                    ? $seoDescription
+                    : 'Xem thông tin, giá bán và tình trạng sản phẩm tại TechZone.';
+            }
+        }
+    }
+    ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechZone - Thiết bị công nghệ</title>
+    <meta name="description" content="<?php echo htmlspecialchars($pageDescription, ENT_QUOTES, 'UTF-8'); ?>">
+    <title><?php echo htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8'); ?></title>
     <style>
         :root {
             --primary: #2563eb;

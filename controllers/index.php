@@ -220,6 +220,8 @@ if(isset($_REQUEST['act']))
         case 'home':
             $controller = new controller();
             $danhsach = $controller->hienthisanpham();
+            $sanPhamBanChay = $controller->getBestSellingProducts();
+            $sanPhamMoi = $controller->getNewestProducts();
             include __DIR__ . "/../view/home.php";
             break;
         case 'hienthiDM':
@@ -231,6 +233,8 @@ if(isset($_REQUEST['act']))
         default:
             $controller = new controller();
             $danhsach = $controller->hienthisanpham();
+            $sanPhamBanChay = $controller->getBestSellingProducts();
+            $sanPhamMoi = $controller->getNewestProducts();
             include __DIR__ . "/../view/home.php";
             break;
         case 'hienthiSP':

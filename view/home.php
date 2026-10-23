@@ -30,6 +30,57 @@
     </section>
     <?php endif; ?>
 
+    <?php
+    $renderProducts = static function (array $products): void {
+        if (empty($products)) {
+            echo '<div class="card empty">Hiện chưa có sản phẩm phù hợp.</div>';
+            return;
+        }
+        echo '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:18px;">';
+        foreach ($products as $product):
+            $imageName = basename((string) ($product['image'] ?? ''));
+            $imageFile = __DIR__ . '/images/' . $imageName;
+            ?>
+            <a class="product-card" href="index.php?act=chitietsp&amp;idsp=<?php echo (int) $product['id_sp']; ?>">
+                <div class="product-image">
+                    <?php if ($imageName !== '' && is_file($imageFile)): ?>
+                        <img src="view/images/<?php echo rawurlencode($imageName); ?>"
+                             alt="<?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php else: ?>
+                        <span>Chưa có ảnh</span>
+                    <?php endif; ?>
+                </div>
+                <div class="product-card-body">
+                    <h3><?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                    <strong><?php echo number_format((float) $product['Price'], 0, ',', '.'); ?>đ</strong>
+                    <span class="product-link">Xem chi tiết →</span>
+                </div>
+            </a>
+        <?php endforeach;
+        echo '</div>';
+    };
+    ?>
+
+    <section style="margin-top:38px;">
+        <div class="page-heading">
+            <div>
+                <h2>Sản phẩm bán chạy</h2>
+                <p class="subtitle">Những sản phẩm được khách hàng lựa chọn nhiều nhất.</p>
+            </div>
+        </div>
+        <?php $renderProducts($sanPhamBanChay ?? []); ?>
+    </section>
+
+    <section style="margin-top:38px;">
+        <div class="page-heading">
+            <div>
+                <h2>Mới lên kệ</h2>
+                <p class="subtitle">Sản phẩm mới nhập được ưu tiên giới thiệu.</p>
+            </div>
+        </div>
+        <?php $renderProducts($sanPhamMoi ?? []); ?>
+    </section>
+
     <section style="margin-top:38px;">
         <div class="page-heading">
             <div>
@@ -38,33 +89,7 @@
             </div>
             <a class="btn" href="index.php?act=hienthiSP">Xem tất cả</a>
         </div>
-        <?php if (!empty($danhsach)): ?>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:18px;">
-                <?php foreach ($danhsach as $product): ?>
-                    <?php
-                    $imageName = basename((string) ($product['image'] ?? ''));
-                    $imageFile = __DIR__ . '/images/' . $imageName;
-                    ?>
-                    <a class="product-card" href="index.php?act=chitietsp&amp;idsp=<?php echo (int) $product['id_sp']; ?>">
-                        <div class="product-image">
-                            <?php if ($imageName !== '' && is_file($imageFile)): ?>
-                                <img src="view/images/<?php echo rawurlencode($imageName); ?>"
-                                     alt="<?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <?php else: ?>
-                                <span>Chưa có ảnh</span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="product-card-body">
-                            <h3><?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?></h3>
-                            <strong><?php echo number_format((float) $product['Price'], 0, ',', '.'); ?>đ</strong>
-                            <span class="product-link">Xem chi tiết →</span>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        <?php else: ?>
-            <div class="card empty">Hiện chưa có sản phẩm nào để trưng bày.</div>
-        <?php endif; ?>
+        <?php $renderProducts($danhsach ?? []); ?>
     </section>
 
     <section style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:30px;">

@@ -18,6 +18,8 @@
 - Danh mục và sản phẩm có CRUD ở khu vực quản lý.
 - Khách hàng xem danh sách, chi tiết và giá khuyến mãi.
 - Ảnh sản phẩm được lưu trong `view/images/`.
+- Trang chủ ưu tiên hiển thị sản phẩm bán chạy dựa trên số lượng đã bán và sản
+  phẩm mới lên kệ dựa trên ngày nhập.
 
 ### Tài khoản
 
@@ -64,6 +66,7 @@ Quản lý
 | `controllers/controller.php` | Facade gọi model |
 | `models/khachhang.php` | Tài khoản và token reset |
 | `models/donhang.php` | Tạo, đọc, cập nhật, huỷ đơn |
+| `models/sanpham.php` | Catalog, sản phẩm bán chạy và sản phẩm mới |
 | `services/customer_auth.php` | Session và quyền khách hàng |
 | `services/auth.php` | Nạp `.env` và quyền quản lý |
 | `services/mailer.php` | SMTP và email nghiệp vụ |

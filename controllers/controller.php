@@ -42,6 +42,14 @@ class controller
         return $sp->getallsanpham();
     }
 
+    public function getBestSellingProducts(int $limit = 6): array {
+        return (new sanpham())->getBestSelling($limit);
+    }
+
+    public function getNewestProducts(int $limit = 6): array {
+        return (new sanpham())->getNewest($limit);
+    }
+
     public function getNextProductId(): int {
         return (new sanpham())->getNextId();
     }

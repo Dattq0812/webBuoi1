@@ -16,5 +16,9 @@ $_REQUEST['act'] = $act;
     }
     require_once __DIR__ . "/view/header.php";
     require_once __DIR__ . "/controllers/index.php"; 
-echo '</main><footer class="site-footer">TechZoneVN &copy; 2026 - Thiết bị công nghệ chính hãng</footer></body></html>';
+echo '</main><footer class="site-footer">'
+    . '<strong>TechZoneVN</strong> &copy; 2026 - Thiết bị công nghệ chính hãng'
+    . '<br>Địa chỉ: 642 Âu Cơ'
+    . ' | Email: <a href="mailto:cskh@techzonevn.store">cskh@techzonevn.store</a>'
+    . '</footer></body></html>';
 ?>
