@@ -34,6 +34,8 @@
 - Đơn hàng lưu thông tin người mua, thanh toán, voucher và tổng tiền.
 - Khu vực quản lý có thống kê doanh thu và số đơn theo tuần, tháng và năm hiện
   tại, loại trừ đơn đã huỷ.
+- Dashboard có biểu đồ doanh thu theo quý và nhập/xuất kho dựa trên bảng lịch
+  sử `inventory_movements`.
 - Chi tiết đơn lưu snapshot tên, đơn giá và số lượng sản phẩm.
 - Email xác nhận đơn hàng đính kèm hình ảnh sản phẩm còn tồn tại trong thư mục
   `view/images/`.

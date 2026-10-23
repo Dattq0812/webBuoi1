@@ -59,6 +59,16 @@ class donhang
                         'Sản phẩm "' . $item['Name'] . '" không còn đủ số lượng trong kho.'
                     );
                 }
+                $movementStatement = $connection->prepare(
+                    "INSERT INTO inventory_movements
+                        (product_id, movement_type, quantity, reference_type, reference_id)
+                     VALUES (:product_id, 'export', :quantity, 'order', :reference_id)"
+                );
+                $movementStatement->execute([
+                    ':product_id' => (int) $item['id_sp'],
+                    ':quantity' => (int) $item['quantity'],
+                    ':reference_id' => $orderId,
+                ]);
             }
         });
     }
@@ -106,6 +116,50 @@ class donhang
              FROM donhang
              WHERE trang_thai <> 'da_huy'"
         );
+    }
+
+    public function getQuarterlyStatistics(): array
+    {
+        $xl = new xl_data();
+        $rows = $xl->readPreparedAll(
+            "SELECT
+                QUARTER(d.ngay_dat) AS quarter_number,
+                COALESCE(SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
+                    THEN d.tong_tien ELSE 0 END), 0) AS revenue,
+                COALESCE(SUM(CASE WHEN d.trang_thai NOT IN ('da_huy', 'hoan_tra')
+                    THEN ct.so_luong ELSE 0 END), 0) AS exported_quantity
+             FROM donhang d
+             LEFT JOIN chitiet_donhang ct ON ct.donhang_id = d.id
+             WHERE YEAR(d.ngay_dat) = YEAR(CURDATE())
+             GROUP BY QUARTER(d.ngay_dat)
+             ORDER BY quarter_number"
+        );
+        $imports = $xl->readPreparedAll(
+            "SELECT QUARTER(created_at) AS quarter_number, SUM(quantity) AS imported_quantity
+             FROM inventory_movements
+             WHERE movement_type = 'import' AND YEAR(created_at) = YEAR(CURDATE())
+             GROUP BY QUARTER(created_at)
+             ORDER BY quarter_number"
+        );
+        $importByQuarter = [];
+        foreach ($imports as $row) {
+            $importByQuarter[(int) $row['quarter_number']] = (int) $row['imported_quantity'];
+        }
+        $statistics = [];
+        for ($quarter = 1; $quarter <= 4; $quarter++) {
+            $statistics[] = [
+                'quarter' => $quarter,
+                'revenue' => 0,
+                'exported_quantity' => 0,
+                'imported_quantity' => $importByQuarter[$quarter] ?? 0,
+            ];
+        }
+        foreach ($rows as $row) {
+            $quarter = (int) $row['quarter_number'];
+            $statistics[$quarter - 1]['revenue'] = (float) $row['revenue'];
+            $statistics[$quarter - 1]['exported_quantity'] = (int) $row['exported_quantity'];
+        }
+        return $statistics;
     }
 
     public function getByCustomer(int $customerId): array
@@ -205,6 +259,16 @@ class donhang
                     ':quantity' => (int) $item['so_luong'],
                     ':id_sp' => (int) $item['id_sp'],
                 ]);
+                $movementStatement = $connection->prepare(
+                    "INSERT INTO inventory_movements
+                        (product_id, movement_type, quantity, reference_type, reference_id)
+                     VALUES (:product_id, 'import', :quantity, 'order_return', :reference_id)"
+                );
+                $movementStatement->execute([
+                    ':product_id' => (int) $item['id_sp'],
+                    ':quantity' => (int) $item['so_luong'],
+                    ':reference_id' => $id,
+                ]);
             }
 
             $statusStatement = $connection->prepare(
@@ -261,6 +325,16 @@ class donhang
                 $restoreStock->execute([
                     ':quantity' => (int) $item['quantity'],
                     ':id_sp' => (int) $item['id_sp'],
+                ]);
+                $movementStatement = $connection->prepare(
+                    "INSERT INTO inventory_movements
+                        (product_id, movement_type, quantity, reference_type, reference_id)
+                     VALUES (:product_id, 'import', :quantity, 'order_cancel', :reference_id)"
+                );
+                $movementStatement->execute([
+                    ':product_id' => (int) $item['id_sp'],
+                    ':quantity' => (int) $item['quantity'],
+                    ':reference_id' => $id,
                 ]);
             }
 

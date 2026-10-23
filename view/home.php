@@ -76,6 +76,59 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
                 </div>
             <?php endforeach; ?>
         </div>
+        <?php
+        $quarterlyStatistics = $quarterlyStatistics ?? [];
+        $maxQuarterRevenue = max(array_map(
+            static fn (array $quarter): float => (float) $quarter['revenue'],
+            $quarterlyStatistics
+        ) ?: [1]);
+        $maxQuarterQuantity = max(array_map(
+            static fn (array $quarter): int => max(
+                (int) $quarter['imported_quantity'],
+                (int) $quarter['exported_quantity']
+            ),
+            $quarterlyStatistics
+        ) ?: [1]);
+        ?>
+        <div class="statistics-charts">
+            <div class="card">
+                <h3>Doanh thu theo quý</h3>
+                <div class="bar-chart" aria-label="Biểu đồ doanh thu theo quý">
+                    <?php foreach ($quarterlyStatistics as $quarter): ?>
+                        <?php $height = max(4, (int) round((float) $quarter['revenue'] / $maxQuarterRevenue * 100)); ?>
+                        <div class="bar-column">
+                            <span class="bar-value"><?php echo number_format((float) $quarter['revenue'], 0, ',', '.'); ?>đ</span>
+                            <div class="bar revenue-bar" style="height:<?php echo $height; ?>%;"></div>
+                            <strong>Q<?php echo (int) $quarter['quarter']; ?></strong>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Nhập / xuất sản phẩm</h3>
+                <div class="inventory-legend">
+                    <span><i class="legend-import"></i> Nhập</span>
+                    <span><i class="legend-export"></i> Xuất</span>
+                </div>
+                <div class="bar-chart" aria-label="Biểu đồ số lượng nhập xuất theo quý">
+                    <?php foreach ($quarterlyStatistics as $quarter): ?>
+                        <?php
+                        $importHeight = max(4, (int) round((int) $quarter['imported_quantity'] / $maxQuarterQuantity * 100));
+                        $exportHeight = max(4, (int) round((int) $quarter['exported_quantity'] / $maxQuarterQuantity * 100));
+                        ?>
+                        <div class="bar-column inventory-column">
+                            <div class="bar-pair">
+                                <div class="bar inventory-import" style="height:<?php echo $importHeight; ?>%;"
+                                     title="Nhập: <?php echo (int) $quarter['imported_quantity']; ?>"></div>
+                                <div class="bar inventory-export" style="height:<?php echo $exportHeight; ?>%;"
+                                     title="Xuất: <?php echo (int) $quarter['exported_quantity']; ?>"></div>
+                            </div>
+                            <strong>Q<?php echo (int) $quarter['quarter']; ?></strong>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
     </section>
     <?php endif; ?>
 
@@ -242,6 +295,55 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
             .recommendations-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             }
+        }
+        .statistics-charts {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 18px;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            height: 230px;
+            gap: 12px;
+            padding: 26px 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .bar-column {
+            display: flex;
+            width: 22%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: end;
+            gap: 8px;
+        }
+        .bar {
+            width: min(54px, 75%);
+            min-height: 4px;
+            border-radius: 7px 7px 0 0;
+            transition: height .3s ease;
+        }
+        .revenue-bar { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+        .bar-value { min-height: 18px; color: var(--muted); font-size: 11px; text-align: center; }
+        .inventory-legend { display: flex; gap: 14px; margin-bottom: 4px; color: var(--muted); font-size: 12px; }
+        .inventory-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 3px; }
+        .legend-import { background: #14b8a6; }
+        .legend-export { background: #f97316; }
+        .bar-pair {
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            gap: 4px;
+            width: 100%;
+            height: calc(100% - 26px);
+        }
+        .inventory-import { background: #14b8a6; }
+        .inventory-export { background: #f97316; }
+        @media (max-width: 800px) {
+            .statistics-charts { grid-template-columns: 1fr; }
         }
     </style>
 </div>

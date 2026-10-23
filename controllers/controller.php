@@ -61,6 +61,7 @@ class controller
     // Gọi hàm thêm sản phẩm từ Model[cite: 10]
     public function themsp(sanpham $sp): void {
         $sp->themsp($sp);
+        $sp->recordInventoryMovement((int) $sp->getId(), 'import', (int) $sp->getMount(), 'product_create');
     }
 
     public function deletesp(sanpham $sp): void {
@@ -109,6 +110,10 @@ class controller
 
     public function getRevenueStatistics(): array {
         return (new donhang())->getRevenueStatistics();
+    }
+
+    public function getQuarterlyStatistics(): array {
+        return (new donhang())->getQuarterlyStatistics();
     }
 
     public function updateOrderStatus(int $id, string $currentStatus, string $nextStatus): bool {

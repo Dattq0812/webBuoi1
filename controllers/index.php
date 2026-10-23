@@ -278,6 +278,7 @@ if(isset($_REQUEST['act']))
             $sanPhamMoi = $controller->getNewestProducts();
             if (isManager()) {
                 $revenueStatistics = $controller->getRevenueStatistics();
+                $quarterlyStatistics = $controller->getQuarterlyStatistics();
             }
             include __DIR__ . "/../view/home.php";
             break;
@@ -294,6 +295,7 @@ if(isset($_REQUEST['act']))
             $sanPhamMoi = $controller->getNewestProducts();
             if (isManager()) {
                 $revenueStatistics = $controller->getRevenueStatistics();
+                $quarterlyStatistics = $controller->getQuarterlyStatistics();
             }
             include __DIR__ . "/../view/home.php";
             break;
@@ -760,6 +762,7 @@ if(isset($_REQUEST['act']))
                 if (empty($oldProduct)) {
                     throw new RuntimeException('Không tìm thấy sản phẩm cần cập nhật.');
                 }
+                $oldMount = (int) $oldProduct[0]['Mount'];
                 $image = $oldProduct[0]['image'];
                 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                     $image = basename($_FILES['image']['name']);
@@ -771,6 +774,12 @@ if(isset($_REQUEST['act']))
                 }
                 $sp->setImage($image);
                 $controller->updateProduct($sp);
+                $mountChange = $mount - $oldMount;
+                if ($mountChange > 0) {
+                    $sp->recordInventoryMovement($id_sp, 'import', $mountChange, 'product_update');
+                } elseif ($mountChange < 0) {
+                    $sp->recordInventoryMovement($id_sp, 'export', abs($mountChange), 'product_update');
+                }
 
                 echo "<script>window.location.href = 'index.php?act=hienthiSP';</script>";
                 exit;

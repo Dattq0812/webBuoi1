@@ -13,7 +13,50 @@ class sanpham {
     private $Image = "";
     private $id_danhmuc = 0;
 
-    public function __construct(){}
+    public function __construct(){
+        $this->ensureInventoryMovementsTable();
+    }
+
+    private function ensureInventoryMovementsTable(): void {
+        $xl = new xl_data();
+        $xl->execute_item(
+            "CREATE TABLE IF NOT EXISTS inventory_movements (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                product_id INT NOT NULL,
+                movement_type ENUM('import', 'export') NOT NULL,
+                quantity INT NOT NULL,
+                reference_type VARCHAR(30) NULL,
+                reference_id INT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_inventory_product (product_id),
+                INDEX idx_inventory_created (created_at)
+            ) ENGINE=InnoDB"
+        );
+    }
+
+    public function recordInventoryMovement(
+        int $productId,
+        string $movementType,
+        int $quantity,
+        ?string $referenceType = null,
+        ?int $referenceId = null
+    ): void {
+        if ($quantity <= 0 || !in_array($movementType, ['import', 'export'], true)) {
+            return;
+        }
+        (new xl_data())->executePrepared(
+            "INSERT INTO inventory_movements
+                (product_id, movement_type, quantity, reference_type, reference_id)
+             VALUES (:product_id, :movement_type, :quantity, :reference_type, :reference_id)",
+            [
+                ':product_id' => $productId,
+                ':movement_type' => $movementType,
+                ':quantity' => $quantity,
+                ':reference_type' => $referenceType,
+                ':reference_id' => $referenceId,
+            ]
+        );
+    }
 
     // 2. Các hàm Getter và Setter để gán/lấy giá trị cho thuộc tính một cách an toàn
     public function setId_danhmuc($id_danhmuc){ return $this->id_danhmuc =$id_danhmuc; }

@@ -36,6 +36,9 @@ trị của quản lý.
 - Xem khu vực quản trị và danh sách đơn hàng.
 - Xem thống kê doanh thu và số đơn theo tuần, tháng và năm hiện tại; đơn đã huỷ
   không được tính.
+- Xem biểu đồ doanh thu theo 4 quý và biểu đồ số lượng nhập/xuất sản phẩm; dữ
+  liệu tồn kho được ghi nhận lại sau mỗi lần thêm, sửa, đặt hàng, huỷ hoặc trả
+  hàng.
 - Chuyển trạng thái đơn theo đúng thứ tự:
 
   `Chờ xác nhận -> Đã xác nhận -> Đang giao -> Đã giao -> Hoàn trả`
