@@ -31,12 +31,15 @@
     <?php endif; ?>
 
     <?php
-    $renderProducts = static function (array $products): void {
+    $renderProducts = static function (array $products, string $gridClass = ''): void {
         if (empty($products)) {
             echo '<div class="card empty">Hiện chưa có sản phẩm phù hợp.</div>';
             return;
         }
-        echo '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:18px;">';
+        $classAttribute = $gridClass !== ''
+            ? ' class="' . htmlspecialchars($gridClass, ENT_QUOTES, 'UTF-8') . '"'
+            : '';
+        echo '<div' . $classAttribute . ' style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:18px;">';
         foreach ($products as $product):
             $imageName = basename((string) ($product['image'] ?? ''));
             $imageFile = __DIR__ . '/images/' . $imageName;
@@ -68,7 +71,7 @@
                 <p class="subtitle">Những sản phẩm được khách hàng lựa chọn nhiều nhất.</p>
             </div>
         </div>
-        <?php $renderProducts($sanPhamBanChay ?? []); ?>
+        <?php $renderProducts($sanPhamBanChay ?? [], 'recommendations-grid'); ?>
     </section>
 
     <section style="margin-top:38px;">
@@ -78,7 +81,7 @@
                 <p class="subtitle">Sản phẩm mới nhập được ưu tiên giới thiệu.</p>
             </div>
         </div>
-        <?php $renderProducts($sanPhamMoi ?? []); ?>
+        <?php $renderProducts($sanPhamMoi ?? [], 'recommendations-grid'); ?>
     </section>
 
     <section style="margin-top:38px;">
@@ -97,4 +100,20 @@
         <div class="card"><h2>Giao hàng nhanh</h2><p class="subtitle">Đóng gói an toàn, giao tận nơi trên toàn quốc.</p></div>
         <div class="card"><h2>Hỗ trợ tận tâm</h2><p class="subtitle">Tư vấn lựa chọn thiết bị phù hợp nhu cầu.</p></div>
     </section>
+
+    <style>
+        .recommendations-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+        @media (max-width: 900px) {
+            .recommendations-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+        }
+        @media (max-width: 650px) {
+            .recommendations-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+    </style>
 </div>
