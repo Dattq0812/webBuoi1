@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../controller.php";
 require_once __DIR__ . "/../../services/mailer.php";
@@ -11,7 +11,7 @@ switch ($act)
             $id_sp = filter_input(INPUT_POST, 'id_sp', FILTER_VALIDATE_INT);
             $quantity = filter_input(INPUT_POST, 'quantity', FILTER_VALIDATE_INT);
             if (!$id_sp || !$quantity || $quantity < 1) {
-                echo "<script>alert('ThÃ´ng tin sáº£n pháº©m khÃ´ng há»£p lá»‡!'); window.history.back();</script>";
+                echo "<script>alert('Thông tin sản phẩm không hợp lệ!'); window.history.back();</script>";
                 exit;
             }
             $sp = new sanpham();
@@ -19,7 +19,7 @@ switch ($act)
             $controller = new controller();
             $products = $controller->getOneProduct($sp);
             if (empty($products) || (int) $products[0]['Mount'] < 1) {
-                echo "<script>alert('Sáº£n pháº©m khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ háº¿t hÃ ng!'); window.history.back();</script>";
+                echo "<script>alert('Sản phẩm không tồn tại hoặc đã hết hàng!'); window.history.back();</script>";
                 exit;
             }
             $stock = (int) $products[0]['Mount'];
@@ -79,7 +79,7 @@ switch ($act)
             $cartItems = $controller->getCartItems($_SESSION['cart'] ?? []);
             if (empty($cartItems)) {
                 echo "<script>
-                        alert('Giá» hÃ ng Ä‘ang trá»‘ng!');
+                        alert('Giỏ hàng đang trống!');
                         window.location.href = 'index.php?act=home';
                       </script>";
                 exit;
@@ -115,13 +115,13 @@ switch ($act)
             if ($buyerName === '' || $address === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)
                 || !preg_match('/^[0-9+ ()-]{8,20}$/', $phone)
                 || !in_array($paymentMethod, ['cod', 'bank_transfer'], true)) {
-                echo "<script>alert('Vui lÃ²ng nháº­p Ä‘Ãºng há» tÃªn, Ä‘á»‹a chá»‰, sá»‘ Ä‘iá»‡n thoáº¡i vÃ  email.'); window.history.back();</script>";
+                echo "<script>alert('Vui lòng nhập đúng họ tên, địa chỉ, số điện thoại và email.'); window.history.back();</script>";
                 exit;
             }
             $controller = new controller();
             $cartItems = $controller->getCartItems($_SESSION['cart'] ?? []);
             if (empty($cartItems)) {
-                echo "<script>alert('Giá» hÃ ng Ä‘ang trá»‘ng!'); window.location.href = 'index.php?act=home';</script>";
+                echo "<script>alert('Giỏ hàng đang trống!'); window.location.href = 'index.php?act=home';</script>";
                 exit;
             }
             $cartTotal = 0;
@@ -130,7 +130,7 @@ switch ($act)
             }
             $customerLoyalty = $controller->getCustomerLoyalty(customerId());
             if ($voucherCode !== '' && !isset($voucherOptions[$voucherCode])) {
-                echo "<script>alert('MÃ£ voucher khÃ´ng há»£p lá»‡.'); window.history.back();</script>";
+                echo "<script>alert('Mã voucher không hợp lệ.'); window.history.back();</script>";
                 exit;
             }
             $discount = 0;
@@ -160,12 +160,12 @@ switch ($act)
             try {
                 $controller->createOrder($order, $cartItems);
             } catch (Throwable $e) {
-                echo "<h3 style='color:red'>KhÃ´ng thá»ƒ lÆ°u Ä‘Æ¡n hÃ ng: "
+                echo "<h3 style='color:red'>Không thể lưu đơn hàng: "
                     . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8')
                     . "</h3>";
-                echo "<p>ÄÆ¡n hÃ ng chÆ°a Ä‘Æ°á»£c táº¡o vÃ  sá»‘ lÆ°á»£ng tá»“n kho chÆ°a thay Ä‘á»•i. "
-                    . "Vui lÃ²ng quay láº¡i giá» hÃ ng Ä‘á»ƒ kiá»ƒm tra láº¡i.</p>";
-                echo "<a href='index.php?act=cart'>Quay láº¡i giá» hÃ ng</a>";
+                echo "<p>Đơn hàng chưa được tạo và số lượng tồn kho chưa thay đổi. "
+                    . "Vui lòng quay lại giỏ hàng để kiểm tra lại.</p>";
+                echo "<a href='index.php?act=cart'>Quay lại giỏ hàng</a>";
                 exit;
             }
             $emailSent = true;

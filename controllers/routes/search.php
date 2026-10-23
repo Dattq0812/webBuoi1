@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../controller.php";
 require_once __DIR__ . "/../../services/mailer.php";
@@ -22,7 +22,7 @@ switch ($act)
                         return [
                             'id' => (int) $product['id_sp'],
                             'name' => $product['Name'],
-                            'price' => number_format((float) $product['Price'], 0, ',', '.') . 'Ä‘',
+                            'price' => number_format((float) $product['Price'], 0, ',', '.') . 'đ',
                             'image' => basename((string) ($product['image'] ?? '')),
                         ];
                     }, $products),
@@ -43,7 +43,7 @@ switch ($act)
             $value = trim($_GET['value'] ?? '');
             $excludeId = filter_input(INPUT_GET, 'exclude_id', FILTER_VALIDATE_INT);
             if ($value === '' || $field === '') {
-                echo json_encode(['success' => false, 'duplicate' => false, 'message' => 'Thiáº¿u dá»¯ liá»‡u kiá»ƒm tra.']);
+                echo json_encode(['success' => false, 'duplicate' => false, 'message' => 'Thiếu dữ liệu kiểm tra.']);
                 exit;
             }
             try {

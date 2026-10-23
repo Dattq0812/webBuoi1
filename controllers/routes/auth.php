@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../controller.php";
 require_once __DIR__ . "/../../services/mailer.php";
@@ -32,7 +32,7 @@ switch ($act)
                     header('Location: index.php?act=home');
                     exit;
                 }
-                $loginError = 'Email/sá»‘ Ä‘iá»‡n thoáº¡i hoáº·c máº­t kháº©u khÃ´ng Ä‘Ãºng.';
+                $loginError = 'Email/số điện thoại hoặc mật khẩu không đúng.';
             }
             include __DIR__ . "/../../view/login.php";
             break;
@@ -47,12 +47,12 @@ switch ($act)
                 if ($name === '' || ($phone === '' && $email === '') || ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL))
                     || ($phone !== '' && !preg_match('/^[0-9+ ()-]{8,20}$/', $phone))
                     || strlen($password) < 8 || $password !== $confirm) {
-                    $registerError = 'Vui lÃ²ng nháº­p Ä‘Ãºng thÃ´ng tin vÃ  máº­t kháº©u tá»‘i thiá»ƒu 8 kÃ½ tá»±.';
+                    $registerError = 'Vui lòng nhập đúng thông tin và mật khẩu tối thiểu 8 ký tự.';
                 } else {
                     $customerModel = new khachhang();
                     if (($email !== '' && $customerModel->findByEmail($email))
                         || ($phone !== '' && $customerModel->findByIdentifier($phone))) {
-                        $registerError = 'Email hoáº·c sá»‘ Ä‘iá»‡n thoáº¡i Ä‘Ã£ Ä‘Æ°á»£c Ä‘Äƒng kÃ½.';
+                        $registerError = 'Email hoặc số điện thoại đã được đăng ký.';
                     } else {
                         try {
                             $customerModel->create($name, $phone, $email, password_hash($password, PASSWORD_DEFAULT));
@@ -61,7 +61,7 @@ switch ($act)
                             header('Location: index.php?act=home');
                             exit;
                         } catch (Throwable $e) {
-                            $registerError = 'KhÃ´ng thá»ƒ táº¡o tÃ i khoáº£n. Vui lÃ²ng kiá»ƒm tra láº¡i dá»¯ liá»‡u.';
+                            $registerError = 'Không thể tạo tài khoản. Vui lòng kiểm tra lại dữ liệu.';
                         }
                     }
                 }
@@ -81,12 +81,12 @@ switch ($act)
                         try {
                             sendPasswordResetEmail($customer, $token);
                         } catch (Throwable $e) {
-                            $forgotMessage = 'KhÃ´ng thá»ƒ gá»­i email lÃºc nÃ y. Vui lÃ²ng thá»­ láº¡i sau.';
+                            $forgotMessage = 'Không thể gửi email lúc này. Vui lòng thử lại sau.';
                         }
                     }
                 }
                 if ($forgotMessage === '') {
-                    $forgotMessage = 'Náº¿u email Ä‘Ã£ Ä‘Æ°á»£c Ä‘Äƒng kÃ½, hÆ°á»›ng dáº«n Ä‘áº·t láº¡i máº­t kháº©u Ä‘Ã£ Ä‘Æ°á»£c gá»­i.';
+                    $forgotMessage = 'Nếu email đã được đăng ký, hướng dẫn đặt lại mật khẩu đã được gửi.';
                 }
             }
             include __DIR__ . "/../../view/forgot_password.php";
@@ -95,12 +95,12 @@ switch ($act)
             $token = trim($_GET['token'] ?? $_POST['token'] ?? '');
             $resetError = '';
             if ($token === '' || !(new khachhang())->findByResetToken(hash('sha256', $token))) {
-                $resetError = 'LiÃªn káº¿t Ä‘áº·t láº¡i máº­t kháº©u khÃ´ng há»£p lá»‡ hoáº·c Ä‘Ã£ háº¿t háº¡n.';
+                $resetError = 'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.';
             } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $password = (string) ($_POST['password'] ?? '');
                 $confirm = (string) ($_POST['password_confirmation'] ?? '');
                 if (strlen($password) < 8 || $password !== $confirm) {
-                    $resetError = 'Máº­t kháº©u pháº£i cÃ³ Ã­t nháº¥t 8 kÃ½ tá»± vÃ  khá»›p xÃ¡c nháº­n.';
+                    $resetError = 'Mật khẩu phải có ít nhất 8 ký tự và khớp xác nhận.';
                 } else {
                     $customer = (new khachhang())->findByResetToken(hash('sha256', $token));
                     (new khachhang())->updatePassword((int) $customer['id'], password_hash($password, PASSWORD_DEFAULT));

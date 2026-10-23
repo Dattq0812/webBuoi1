@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../controller.php";
 require_once __DIR__ . "/../../services/mailer.php";
@@ -10,7 +10,7 @@ switch ($act)
         case 'order_detail':
             $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
             if (!$id || $id <= 0) {
-                echo "<script>alert('MÃ£ Ä‘Æ¡n hÃ ng khÃ´ng há»£p lá»‡.'); window.history.back();</script>";
+                echo "<script>alert('Mã đơn hàng không hợp lệ.'); window.history.back();</script>";
                 exit;
             }
             $orderController = new controller();
@@ -24,7 +24,7 @@ switch ($act)
             }
             if (!$orderDetail) {
                 http_response_code(404);
-                echo '<div class="container"><div class="card empty">KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng hoáº·c báº¡n khÃ´ng cÃ³ quyá»n xem Ä‘Æ¡n nÃ y.</div></div>';
+                echo '<div class="container"><div class="card empty">Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn này.</div></div>';
                 exit;
             }
             include __DIR__ . "/../../view/order_detail.php";
@@ -46,12 +46,12 @@ switch ($act)
                 'da_giao' => 'hoan_tra',
             ];
             if (!$id || !isset($statusFlow[$currentStatus]) || $statusFlow[$currentStatus] !== $nextStatus) {
-                echo "<script>alert('ThÃ´ng tin tráº¡ng thÃ¡i khÃ´ng há»£p lá»‡.'); window.location.href='index.php?act=orders';</script>";
+                echo "<script>alert('Thông tin trạng thái không hợp lệ.'); window.location.href='index.php?act=orders';</script>";
                 exit;
             }
             $updated = (new controller())->updateOrderStatus($id, $currentStatus, $nextStatus);
             if (!$updated) {
-                echo "<script>alert('ÄÆ¡n hÃ ng Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t hoáº·c tráº¡ng thÃ¡i khÃ´ng cÃ²n há»£p lá»‡.'); window.location.href='index.php?act=orders';</script>";
+                echo "<script>alert('Đơn hàng đã được cập nhật hoặc trạng thái không còn hợp lệ.'); window.location.href='index.php?act=orders';</script>";
                 exit;
             }
             $returnToDetail = ($_POST['return_to'] ?? '') === 'order_detail';
@@ -62,7 +62,7 @@ switch ($act)
             $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
             $reason = trim($_POST['ly_do_huy'] ?? '');
             if (!$id || $reason === '' || mb_strlen($reason) > 1000) {
-                echo "<script>alert('Vui lÃ²ng nháº­p lÃ½ do há»§y há»£p lá»‡.'); window.location.href='index.php?act=orders';</script>";
+                echo "<script>alert('Vui lòng nhập lý do hủy hợp lệ.'); window.location.href='index.php?act=orders';</script>";
                 exit;
             }
             try {
@@ -71,9 +71,9 @@ switch ($act)
                 header('Location: index.php?act=orders');
                 exit;
             } catch (Throwable $e) {
-                echo "<h3 style='color:red'>KhÃ´ng thá»ƒ há»§y Ä‘Æ¡n hÃ ng: "
+                echo "<h3 style='color:red'>Không thể hủy đơn hàng: "
                     . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</h3>";
-                echo "<a href='index.php?act=orders'>Quay láº¡i danh sÃ¡ch Ä‘Æ¡n hÃ ng</a>";
+                echo "<a href='index.php?act=orders'>Quay lại danh sách đơn hàng</a>";
                 exit;
             }
 }

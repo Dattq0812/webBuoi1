@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../controller.php";
 require_once __DIR__ . "/../../services/mailer.php";
@@ -16,61 +16,61 @@ switch ($act)
         case 'add_danhmuc':
             requireManager();
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                // 1. Láº¥y dá»¯ liá»‡u vÃ  lÃ m sáº¡ch (xÃ³a cÃ¡c dáº¥u cÃ¡ch thá»«a á»Ÿ 2 Ä‘áº§u)
+                // 1. Lấy dữ liệu và làm sạch (xóa các dấu cách thừa ở 2 đầu)
                 $name = trim($_POST['name']); 
                 
-                // 2. Validation: Kiá»ƒm tra xem Ã´ nháº­p cÃ³ bá»‹ rá»—ng khÃ´ng
+                // 2. Validation: Kiểm tra xem ô nhập có bị rỗng không
                 if (empty($name)) {
                     echo "<script>
-                            alert('TÃªn danh má»¥c khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ rá»—ng!'); 
-                            window.history.back(); // Äáº©y ngÆ°á»i dÃ¹ng lÃ¹i láº¡i trang trÆ°á»›c
+                            alert('Tên danh mục không được để rỗng!');
+                            window.history.back(); // Đẩy người dùng lùi lại trang trước
                           </script>";
                     exit;
                 }
                 if ((new controller())->isDuplicate('category_name', $name)) {
-                    echo "<script>alert('TÃªn danh má»¥c Ä‘Ã£ tá»“n táº¡i!'); window.history.back();</script>";
+                    echo "<script>alert('Tên danh mục đã tồn tại!'); window.history.back();</script>";
                     exit;
                 }
                               
                 try {
-                    // 3. Thá»±c hiá»‡n lÆ°u vÃ o database
+                    // 3. Thực hiện lưu vào database
                     $dm = new danhmuc();
                     $dm->set_name($name);
                     
                     $controller = new controller();
                     $controller->add_danhmuc($dm);
                     
-                    // 4. CHUYá»‚N HÆ¯á»šNG TRANG (Chuáº©n logic chá»‘ng F5)
-                    // VÃ¬ dá»± Ã¡n cá»§a báº¡n Ä‘Ã£ gá»i Header.php á»Ÿ trÃªn nÃªn ta dÃ¹ng JS Ä‘á»ƒ chuyá»ƒn hÆ°á»›ng
+                    // 4. CHUYỂN HƯỚNG TRANG (Chuẩn logic chống F5)
+                    // Vì dự án của bạn đã gọi Header.php ở trên nên ta dùng JS để chuyển hướng
                     echo "<script>window.location.href = 'index.php?act=hienthiDM';</script>";
                     exit;
                     
                 } catch (Exception $e) {
-                    // Náº¿u lá»—i CSDL thÃ¬ dá»«ng láº¡i vÃ  in ra
-                    echo "<h3 style='color:red'>Lá»–I SQL: " . $e->getMessage() . "</h3>";
+                    // Nếu lỗi CSDL thì dừng lại và in ra
+                    echo "<h3 style='color:red'>LỖI SQL: " . $e->getMessage() . "</h3>";
                 }
             }
             break;
 
         case 'delete_dm':
             requireManager();
-            // 1. Kiá»ƒm tra xem trÃªn URL cÃ³ tá»“n táº¡i tham sá»‘ 'id_dm' khÃ´ng
+            // 1. Kiểm tra xem trên URL có tồn tại tham số 'id_dm' không
             if (isset($_GET['id_dm'])) {
                 
-                // 2. Báº£o máº­t: Láº¥y ID vÃ  Ã©p kiá»ƒu vá» sá»‘ nguyÃªn (intval) Ä‘á»ƒ chá»‘ng SQL Injection
+                // 2. Bảo mật: Lấy ID và ép kiểu về số nguyên (intval) để chống SQL Injection
                 $id_dm = intval($_GET['id_dm']);
                 
-                // 3. Kiá»ƒm tra ID pháº£i lÃ  má»™t sá»‘ há»£p lá»‡ (lá»›n hÆ¡n 0)
+                // 3. Kiểm tra ID phải là một số hợp lệ (lớn hơn 0)
                 if ($id_dm > 0) {
                     try {
-                        // 4. Thá»±c thi logic XÃ³a
+                        // 4. Thực thi logic Xóa
                         $dm = new danhmuc();
                         $dm->setID($id_dm); 
                         
                         $controller = new controller();
                         $controller->delete_dm($dm);
                         
-                        // 5. CHUYá»‚N HÆ¯á»šNG Vá»€ Láº I TRANG DANH SÃCH (TÆ°Æ¡ng tá»± case thÃªm)
+                        // 5. CHUYỂN HƯỚNG VỀ LẠI TRANG DANH SÁCH (Tương tự case thêm)
                         echo "<script>window.location.href = 'index.php?act=hienthiDM';</script>";
                         exit;
                         
@@ -81,9 +81,9 @@ switch ($act)
                         exit;
                     }
                 } else {
-                    // Xá»­ lÃ½ náº¿u ngÆ°á»i dÃ¹ng cá»‘ tÃ¬nh nháº­p báº­y báº¡ lÃªn URL (vd: ?id_dm=abc)
+                    // Xử lý nếu người dùng cố tình nhập bậy bạ lên URL (vd: ?id_dm=abc)
                     echo "<script>
-                            alert('ID danh má»¥c khÃ´ng há»£p lá»‡!'); 
+                            alert('ID danh mục không hợp lệ!');
                             window.location.href = 'index.php?act=hienthiDM';
                           </script>";
                     exit;
@@ -98,13 +98,13 @@ switch ($act)
 
                 if ($id_dm === false || $id_dm === null || $id_dm <= 0 || $name === '') {
                     echo "<script>
-                            alert('ThÃ´ng tin danh má»¥c khÃ´ng há»£p lá»‡!');
+                            alert('Thông tin danh mục không hợp lệ!');
                             window.location.href = 'index.php?act=hienthiDM';
                           </script>";
                     exit;
                 }
                 if ((new controller())->isDuplicate('category_name', $name, $id_dm)) {
-                    echo "<script>alert('TÃªn danh má»¥c Ä‘Ã£ tá»“n táº¡i!'); window.history.back();</script>";
+                    echo "<script>alert('Tên danh mục đã tồn tại!'); window.history.back();</script>";
                     exit;
                 }
 
@@ -119,10 +119,10 @@ switch ($act)
                     echo "<script>window.location.href = 'index.php?act=hienthiDM';</script>";
                     exit;
                 } catch (Exception $e) {
-                    echo "<h3 style='color:red'>Lá»–I SQL KHI Cáº¬P NHáº¬T: "
+                    echo "<h3 style='color:red'>LỖI SQL KHI CẬP NHẬT: "
                         . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8')
                         . "</h3>";
-                    echo "<a href='index.php?act=hienthiDM'>Quay láº¡i</a>";
+                    echo "<a href='index.php?act=hienthiDM'>Quay lại</a>";
                     exit;
                 }
             }

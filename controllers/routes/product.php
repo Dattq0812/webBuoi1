@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../controller.php";
 require_once __DIR__ . "/../../services/mailer.php";
@@ -19,7 +19,7 @@ switch ($act)
             $id_sp = filter_input(INPUT_GET, 'idsp', FILTER_VALIDATE_INT);
             if ($id_sp === false || $id_sp === null || $id_sp <= 0) {
                 echo "<script>
-                        alert('MÃ£ sáº£n pháº©m khÃ´ng há»£p lá»‡!');
+                        alert('Mã sản phẩm không hợp lệ!');
                         window.location.href = 'index.php?act=home';
                       </script>";
                 exit;
@@ -31,7 +31,7 @@ switch ($act)
             $products = $controller->getOneProduct($sp);
             if (empty($products)) {
                 echo "<script>
-                        alert('KhÃ´ng tÃ¬m tháº¥y sáº£n pháº©m!');
+                        alert('Không tìm thấy sản phẩm!');
                         window.location.href = 'index.php?act=home';
                       </script>";
                 exit;
@@ -55,15 +55,15 @@ switch ($act)
             $controller = new controller();
             $id_sp = $controller->getNextProductId();
             
-            $valided = true; // Cá» kiá»ƒm tra dá»¯ liá»‡u há»£p lá»‡
+            $valided = true; // Cờ kiểm tra dữ liệu hợp lệ
 
-            // 1. Kiá»ƒm tra Validate (Báº¯t lá»—i bá» trá»‘ng)[cite: 10]
+            // 1. Kiểm tra Validate (Bắt lỗi bỏ trống)[cite: 10]
             if(empty($_POST["name"])){
                 $name_er = "input name";
                 $valided = false;
             }
             if ($controller->isDuplicate('product_name', trim($_POST['name'] ?? ''))) {
-                $name_er = "TÃªn sáº£n pháº©m Ä‘Ã£ tá»“n táº¡i";
+                $name_er = "Tên sản phẩm đã tồn tại";
                 $valided = false;
             }
             if(empty($_POST["price"])){
@@ -87,40 +87,40 @@ switch ($act)
                 $valided = false;
             }
 
-            // 2. Náº¿u má»i dá»¯ liá»‡u Ä‘á»u há»£p lá»‡ (khÃ´ng rá»—ng) thÃ¬ tiáº¿n hÃ nh ThÃªm[cite: 10]
+            // 2. Nếu mọi dữ liệu đều hợp lệ (không rỗng) thì tiến hành Thêm[cite: 10]
             if($valided){
                 $sp = new sanpham();
                 
-                // GÃ¡n giÃ¡ trá»‹ tá»« form (POST) vÃ o Ä‘á»‘i tÆ°á»£ng sáº£n pháº©m
+                // Gán giá trị từ form (POST) vào đối tượng sản phẩm
                 $sp->setId($id_sp);
                 $sp->setName($_POST["name"]);
                 $sp->setPrice($_POST["price"]);
                 $sp->setMount($_POST["mount"]);
                 $sp->setDecribe($_POST["decribe"]);
                 $sp->setSale($_POST["sale"]);
-                $sp->setDate_import(date('Y-m-d H:i:s')); // Äáº·t ngÃ y hiá»‡n táº¡i
+                $sp->setDate_import(date('Y-m-d H:i:s')); // Đặt ngày hiện tại
                 $sp->setId_danhmuc($_POST["id_danhmuc"]);
                 
-                // Xá»­ lÃ½ Upload HÃ¬nh áº£nh[cite: 10]
+                // Xử lý Upload Hình ảnh[cite: 10]
                 $hinhsp = basename($_FILES['image']['name']);
                 $sp->setImage($hinhsp);
                 $path = __DIR__ . '/../../view/images/';
                 $target_file = $path . $hinhsp;
                 
-                // Di chuyá»ƒn file tá»« bá»™ nhá»› táº¡m vÃ o thÆ° má»¥c dá»± Ã¡n[cite: 10]
+                // Di chuyển file từ bộ nhớ tạm vào thư mục dự án[cite: 10]
                 if (!is_dir($path) || !is_writable($path)
                     || !move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
-                    $image_er = "KhÃ´ng thá»ƒ lÆ°u áº£nh vÃ o thÆ° má»¥c view/images.";
+                    $image_er = "Không thể lưu ảnh vào thư mục view/images.";
                     $valided = false;
                 }
                 
-                // Gá»i Controller Ä‘á»ƒ thá»±c thi lÆ°u vÃ o Database[cite: 10]
+                // Gọi Controller để thực thi lưu vào Database[cite: 10]
                 if ($valided) {
                     $controller->themsp($sp);
                 }
             }
             
-            // 3. Sau khi xá»­ lÃ½ xong, láº¥y láº¡i danh sÃ¡ch vÃ  náº¡p láº¡i View[cite: 10]
+            // 3. Sau khi xử lý xong, lấy lại danh sách và nạp lại View[cite: 10]
             $controller = new controller();
             $danhmuc = $controller->hienthidm();
             $danhsach = $controller->hienthisanpham();
@@ -135,7 +135,7 @@ switch ($act)
             $id_sp = filter_input(INPUT_GET, 'idsp_del', FILTER_VALIDATE_INT);
             if ($id_sp === false || $id_sp === null || $id_sp <= 0) {
                 echo "<script>
-                        alert('MÃ£ sáº£n pháº©m khÃ´ng há»£p lá»‡!');
+                        alert('Mã sản phẩm không hợp lệ!');
                         window.location.href = 'index.php?act=hienthiSP';
                       </script>";
                 exit;
@@ -160,7 +160,7 @@ switch ($act)
             $id_sp = filter_input(INPUT_GET, 'idsp', FILTER_VALIDATE_INT);
             if ($id_sp === false || $id_sp === null || $id_sp <= 0) {
                 echo "<script>
-                        alert('MÃ£ sáº£n pháº©m khÃ´ng há»£p lá»‡!');
+                        alert('Mã sản phẩm không hợp lệ!');
                         window.location.href = 'index.php?act=hienthiSP';
                       </script>";
                 exit;
@@ -172,7 +172,7 @@ switch ($act)
             $products = $controller->getOneProduct($sp);
             if (empty($products)) {
                 echo "<script>
-                        alert('KhÃ´ng tÃ¬m tháº¥y sáº£n pháº©m!');
+                        alert('Không tìm thấy sản phẩm!');
                         window.location.href = 'index.php?act=hienthiSP';
                       </script>";
                 exit;
@@ -200,7 +200,7 @@ switch ($act)
             if (!$id_sp || !$id_danhmuc || $name === '' || $price === false || $price < 1
                 || $mount === false || $mount < 0 || $sale === false || $decribe === '') {
                 echo "<script>
-                        alert('Vui lÃ²ng nháº­p Ä‘áº§y Ä‘á»§ thÃ´ng tin sáº£n pháº©m há»£p lá»‡!');
+                        alert('Vui lòng nhập đầy đủ thông tin sản phẩm hợp lệ!');
                         window.history.back();
                       </script>";
                 exit;
@@ -219,7 +219,7 @@ switch ($act)
 
                 $oldProduct = $controller->getOneProduct($sp);
                 if (empty($oldProduct)) {
-                    throw new RuntimeException('KhÃ´ng tÃ¬m tháº¥y sáº£n pháº©m cáº§n cáº­p nháº­t.');
+                    throw new RuntimeException('Không tìm thấy sản phẩm cần cập nhật.');
                 }
                 $oldMount = (int) $oldProduct[0]['Mount'];
                 $image = $oldProduct[0]['image'];
@@ -228,7 +228,7 @@ switch ($act)
                     $imagePath = __DIR__ . '/../../view/images/' . $image;
                     if (!is_dir(dirname($imagePath)) || !is_writable(dirname($imagePath))
                         || !move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
-                        throw new RuntimeException('KhÃ´ng thá»ƒ lÆ°u áº£nh má»›i vÃ o thÆ° má»¥c view/images.');
+                        throw new RuntimeException('Không thể lưu ảnh mới vào thư mục view/images.');
                     }
                 }
                 $sp->setImage($image);
@@ -243,10 +243,10 @@ switch ($act)
                 echo "<script>window.location.href = 'index.php?act=hienthiSP';</script>";
                 exit;
             } catch (Exception $e) {
-                echo "<h3 style='color:red'>Lá»–I SQL KHI Cáº¬P NHáº¬T Sáº¢N PHáº¨M: "
+                echo "<h3 style='color:red'>LỖI SQL KHI CẬP NHẬT SẢN PHẨM: "
                     . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8')
                     . "</h3>";
-                echo "<a href='index.php?act=hienthiSP'>Quay láº¡i</a>";
+                echo "<a href='index.php?act=hienthiSP'>Quay lại</a>";
                 exit;
             }
 

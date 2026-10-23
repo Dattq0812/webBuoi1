@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . "/../controller.php";
 require_once __DIR__ . "/../../services/mailer.php";
@@ -22,7 +22,7 @@ switch ($act)
             $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
             $reason = trim($_POST['ly_do_huy'] ?? '');
             if (!$id || $reason === '' || mb_strlen($reason) > 1000) {
-                echo "<script>alert('Vui lÃ²ng nháº­p lÃ½ do há»§y há»£p lá»‡.'); window.location.href='index.php?act=customer_orders';</script>";
+                echo "<script>alert('Vui lòng nhập lý do hủy hợp lệ.'); window.location.href='index.php?act=customer_orders';</script>";
                 exit;
             }
             try {
@@ -31,9 +31,9 @@ switch ($act)
                 header('Location: index.php?act=customer_orders');
                 exit;
             } catch (Throwable $e) {
-                echo "<h3 style='color:red'>KhÃ´ng thá»ƒ há»§y Ä‘Æ¡n hÃ ng: "
+                echo "<h3 style='color:red'>Không thể hủy đơn hàng: "
                     . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</h3>";
-                echo "<a href='index.php?act=customer_orders'>Quay láº¡i lá»‹ch sá»­ Ä‘Æ¡n hÃ ng</a>";
+                echo "<a href='index.php?act=customer_orders'>Quay lại lịch sử đơn hàng</a>";
                 exit;
             }
 }
