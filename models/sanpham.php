@@ -61,6 +61,12 @@ class sanpham {
         return $xl->readitem($sql);
     }
 
+    public function getNextId(): int {
+        $xl = new xl_data();
+        $result = $xl->readitem("SELECT COALESCE(MAX(id_sp), 0) + 1 AS next_id FROM sanpham");
+        return (int) ($result[0]['next_id'] ?? 1);
+    }
+
     // Hàm Xóa sản phẩm theo ID
     public function xoasp(sanpham $sp){
         $xl = new xl_data();$sql = "DELETE FROM sanpham WHERE `sanpham`.`id_sp` = " . $sp->getId();

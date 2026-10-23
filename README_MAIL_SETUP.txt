@@ -25,3 +25,12 @@ Doi ADMIN_PASSWORD truoc khi su dung that. Khach mua hang khong can dang nhap.
 
 Neu SMTP loi sau khi don hang da luu, don van duoc giu trong bang donhang va
 trang thanh cong se hien thong bao email chua gui duoc.
+## Database setup for customer accounts
+
+Run `database/customer_auth.sql` once in the `production` database after the
+existing order tables have been created. It adds the `khachhang` customer
+account table and links orders to the customer account through `donhang.customer_id`.
+
+The migration is intentionally a one-time migration because the `ALTER TABLE`
+statements add a foreign key and index. Do not run it repeatedly on the same
+database.

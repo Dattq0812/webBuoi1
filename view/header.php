@@ -89,8 +89,11 @@
                     <li><a href="index.php?act=cart">Giỏ hàng (<?php echo isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0; ?>)</a></li>
                     <?php if (isManager()): ?>
                         <li><a href="index.php?act=logout">Đăng xuất</a></li>
+                    <?php elseif (isCustomer()): ?>
+                        <li><a href="index.php?act=customer_orders">Đơn của tôi</a></li>
+                        <li><a href="index.php?act=logout">Đăng xuất</a></li>
                     <?php else: ?>
-                        <li><a href="index.php?act=login">Đăng nhập quản lý</a></li>
+                        <li><a href="index.php?act=login">Đăng nhập / Đăng ký</a></li>
                     <?php endif; ?>
                 </ul>
             </nav>

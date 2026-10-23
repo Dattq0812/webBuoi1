@@ -14,11 +14,11 @@ $voucherOptions = $voucherOptions ?? [];
     <div class="card" style="max-width:760px;">
         <form method="post" action="index.php?act=placeorder">
             <label>Họ và tên</label>
-            <input type="text" name="buyer_name" required value="<?php echo htmlspecialchars($_POST['buyer_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br><br>
+            <input type="text" name="buyer_name" required value="<?php echo htmlspecialchars($_POST['buyer_name'] ?? ($_SESSION['customer_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"><br><br>
             <label>Số điện thoại</label>
             <input type="tel" name="phone" pattern="[0-9+ ()-]{8,20}" required value="<?php echo htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br><br>
             <label>Email</label>
-            <input type="email" name="email" required value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><br><br>
+            <input type="email" name="email" required value="<?php echo htmlspecialchars($_POST['email'] ?? ($_SESSION['customer_email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"><br><br>
             <label>Địa chỉ giao hàng</label>
             <textarea name="address" rows="4" required><?php echo htmlspecialchars($_POST['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea><br><br>
             <label>Ghi chú (không bắt buộc)</label>

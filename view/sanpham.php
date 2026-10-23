@@ -2,6 +2,7 @@
 $danhmuc = $danhmuc ?? [];
 $danhsach = $danhsach ?? [];
 $showAddForm = $showAddForm ?? false;
+$nextProductId = $nextProductId ?? 1;
 ?>
 
 <div class="container">
@@ -25,7 +26,7 @@ $showAddForm = $showAddForm ?? false;
         <a class="btn" href="index.php?act=hienthiSP">Hủy</a>
     </div>
 
-<form action="index.php?act=xl_themsp" method="post" enctype="multipart/form-data">
+<form id="product-add-form" action="index.php?act=xl_themsp" method="post" enctype="multipart/form-data">
     Danh mục:<br>
     <select name="id_danhmuc" required>
         <?php foreach ($danhmuc as $rc): ?>
@@ -36,12 +37,13 @@ $showAddForm = $showAddForm ?? false;
     </select><br><br>
 
     Mã sản phẩm:<br>
-    <input type="number" name="id_sp" value="<?php echo htmlspecialchars($_POST['id_sp'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
-    <br><span style="color: red;"><?php echo htmlspecialchars($id_sp_er ?? '', ENT_QUOTES, 'UTF-8'); ?></span><br>
+    <input type="number" name="id_sp" value="<?php echo (int) $nextProductId; ?>" readonly>
+    <br><span class="subtitle">Mã được tự động tạo theo số thứ tự sản phẩm tiếp theo.</span><br><br>
 
     Tên sản phẩm:<br>
-    <input type="text" name="name" value="<?php echo htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+    <input id="product-name-input" type="text" name="name" value="<?php echo htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
     <br><span style="color: red;"><?php echo htmlspecialchars($name_er ?? '', ENT_QUOTES, 'UTF-8'); ?></span><br>
+    <span id="product-duplicate-message" style="color:var(--danger);"></span><br>
 
     Giá:<br>
     <input type="number" min="1" name="price" value="<?php echo htmlspecialchars($_POST['price'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
@@ -80,6 +82,38 @@ $showAddForm = $showAddForm ?? false;
         <h2>Sản phẩm hiện có</h2>
         <p class="subtitle"><?php echo count($danhsach); ?> sản phẩm trong danh sách.</p>
     </div>
+    <?php if ($showAddForm): ?>
+    <script>
+    const productForm = document.getElementById('product-add-form');
+    const productInput = document.getElementById('product-name-input');
+    const productMessage = document.getElementById('product-duplicate-message');
+    let productDuplicate = false;
+    productInput.addEventListener('input', async () => {
+        if (productInput.value.trim() === '') {
+            productDuplicate = false;
+            productMessage.textContent = '';
+            return;
+        }
+        try {
+            const params = new URLSearchParams({
+                act: 'check_duplicate',
+                field: 'product_name',
+                value: productInput.value
+            });
+            const response = await fetch('index.php?' + params.toString());
+            if (!response.ok) throw new Error();
+            productDuplicate = (await response.json()).duplicate === true;
+            productMessage.textContent = productDuplicate ? 'Tên sản phẩm đã tồn tại.' : '';
+        } catch (error) {
+            productDuplicate = false;
+            productMessage.textContent = 'Không thể kiểm tra dữ liệu lúc này.';
+        }
+    });
+    productForm.addEventListener('submit', (event) => {
+        if (productDuplicate) event.preventDefault();
+    });
+    </script>
+    <?php endif; ?>
     <?php if ($showAddForm): ?>
         <a class="btn" href="index.php?act=hienthiSP">Quay lại danh sách</a>
     <?php endif; ?>

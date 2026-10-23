@@ -20,6 +20,25 @@ class xl_data extends database{
         return $statement->execute($params);
     }
 
+    public function lastInsertId(): string {
+        if ($this->conn === null) {
+            $this->connection_database();
+        }
+        return $this->conn->lastInsertId();
+    }
+
+    public function readPrepared(string $sql, array $params = []): array {
+        $statement = $this->connection_database()->prepare($sql);
+        $statement->execute($params);
+        return $statement->fetch(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function readPreparedAll(string $sql, array $params = []): array {
+        $statement = $this->connection_database()->prepare($sql);
+        $statement->execute($params);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function transaction(callable $callback): void {
         $connection = $this->connection_database();
         $connection->beginTransaction();

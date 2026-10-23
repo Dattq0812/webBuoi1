@@ -3,6 +3,8 @@
 include __DIR__ . "/danhmuc.php";
 include __DIR__ . "/../models/sanpham.php";
 include __DIR__ . "/../models/donhang.php";
+include __DIR__ . "/../models/duplicate_checker.php";
+include __DIR__ . "/../models/khachhang.php";
 
 class controller
 {
@@ -38,6 +40,10 @@ class controller
     public function hienthisanpham(): array {
         $sp = new sanpham();
         return $sp->getallsanpham();
+    }
+
+    public function getNextProductId(): int {
+        return (new sanpham())->getNextId();
     }
 
     // Gọi hàm thêm sản phẩm từ Model[cite: 10]
@@ -89,8 +95,24 @@ class controller
         return (new donhang())->getAll();
     }
 
-    public function updateOrderStatus(int $id, string $status): void {
-        (new donhang())->updateStatus($id, $status);
+    public function updateOrderStatus(int $id, string $currentStatus, string $nextStatus): bool {
+        return (new donhang())->updateStatus($id, $currentStatus, $nextStatus);
+    }
+
+    public function cancelOrder(int $id, string $reason): array {
+        return (new donhang())->cancel($id, $reason);
+    }
+
+    public function cancelCustomerOrder(int $id, string $reason, int $customerId): array {
+        return (new donhang())->cancel($id, $reason, $customerId);
+    }
+
+    public function getCustomerOrders(int $customerId): array {
+        return (new donhang())->getByCustomer($customerId);
+    }
+
+    public function isDuplicate(string $field, string $value, ?int $excludeId = null): bool {
+        return (new duplicate_checker())->exists($field, $value, $excludeId);
     }
 }
 ?>

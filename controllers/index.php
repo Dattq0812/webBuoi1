@@ -3,6 +3,7 @@
 include __DIR__ . "/controller.php";
 require_once __DIR__ . "/../services/mailer.php";
 require_once __DIR__ . "/../services/auth.php";
+require_once __DIR__ . "/../services/customer_auth.php";
 
 if(isset($_REQUEST['act']))
 {
@@ -10,6 +11,23 @@ if(isset($_REQUEST['act']))
 
     switch($act)
     {
+        case 'check_duplicate':
+            header('Content-Type: application/json; charset=utf-8');
+            $field = trim($_GET['field'] ?? '');
+            $value = trim($_GET['value'] ?? '');
+            $excludeId = filter_input(INPUT_GET, 'exclude_id', FILTER_VALIDATE_INT);
+            if ($value === '' || $field === '') {
+                echo json_encode(['success' => false, 'duplicate' => false, 'message' => 'Thiếu dữ liệu kiểm tra.']);
+                exit;
+            }
+            try {
+                $duplicate = (new controller())->isDuplicate($field, $value, $excludeId ?: null);
+                echo json_encode(['success' => true, 'duplicate' => $duplicate]);
+            } catch (Throwable $e) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'duplicate' => false, 'message' => $e->getMessage()]);
+            }
+            exit;
         case 'login':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $username = trim($_POST['username'] ?? '');
@@ -19,18 +37,123 @@ if(isset($_REQUEST['act']))
                 if ($configuredUsername !== '' && $username === $configuredUsername
                     && $configuredPassword !== '' && hash_equals($configuredPassword, $password)) {
                     session_regenerate_id(true);
+                    unset($_SESSION['customer_id'], $_SESSION['customer_name'], $_SESSION['customer_email']);
                     $_SESSION['user_role'] = 'manager';
                     header('Location: index.php?act=admin');
                     exit;
                 }
-                $loginError = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+                $customer = (new khachhang())->findByIdentifier($username);
+                if ($customer && password_verify($password, $customer['mat_khau'])) {
+                    customerLogin($customer);
+                    header('Location: index.php?act=home');
+                    exit;
+                }
+                $loginError = 'Email/số điện thoại hoặc mật khẩu không đúng.';
             }
             include __DIR__ . "/../view/login.php";
             break;
+        case 'register':
+            $registerError = '';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $name = trim($_POST['ho_ten'] ?? '');
+                $phone = trim($_POST['sdt'] ?? '');
+                $email = strtolower(trim($_POST['email'] ?? ''));
+                $password = (string) ($_POST['password'] ?? '');
+                $confirm = (string) ($_POST['password_confirmation'] ?? '');
+                if ($name === '' || ($phone === '' && $email === '') || ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL))
+                    || ($phone !== '' && !preg_match('/^[0-9+ ()-]{8,20}$/', $phone))
+                    || strlen($password) < 8 || $password !== $confirm) {
+                    $registerError = 'Vui lòng nhập đúng thông tin và mật khẩu tối thiểu 8 ký tự.';
+                } else {
+                    $customerModel = new khachhang();
+                    if (($email !== '' && $customerModel->findByEmail($email))
+                        || ($phone !== '' && $customerModel->findByIdentifier($phone))) {
+                        $registerError = 'Email hoặc số điện thoại đã được đăng ký.';
+                    } else {
+                        try {
+                            $customerModel->create($name, $phone, $email, password_hash($password, PASSWORD_DEFAULT));
+                            $customer = $customerModel->findByIdentifier($email !== '' ? $email : $phone);
+                            customerLogin($customer);
+                            header('Location: index.php?act=home');
+                            exit;
+                        } catch (Throwable $e) {
+                            $registerError = 'Không thể tạo tài khoản. Vui lòng kiểm tra lại dữ liệu.';
+                        }
+                    }
+                }
+            }
+            include __DIR__ . "/../view/register.php";
+            break;
+        case 'forgot_password':
+            $forgotMessage = '';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $email = strtolower(trim($_POST['email'] ?? ''));
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $customerModel = new khachhang();
+                    $customer = $customerModel->findByEmail($email);
+                    if ($customer) {
+                        $token = bin2hex(random_bytes(32));
+                        $customerModel->saveResetToken((int) $customer['id'], hash('sha256', $token), date('Y-m-d H:i:s', time() + 3600));
+                        try {
+                            sendPasswordResetEmail($customer, $token);
+                        } catch (Throwable $e) {
+                            $forgotMessage = 'Không thể gửi email lúc này. Vui lòng thử lại sau.';
+                        }
+                    }
+                }
+                if ($forgotMessage === '') {
+                    $forgotMessage = 'Nếu email đã được đăng ký, hướng dẫn đặt lại mật khẩu đã được gửi.';
+                }
+            }
+            include __DIR__ . "/../view/forgot_password.php";
+            break;
+        case 'reset_password':
+            $token = trim($_GET['token'] ?? $_POST['token'] ?? '');
+            $resetError = '';
+            if ($token === '' || !(new khachhang())->findByResetToken(hash('sha256', $token))) {
+                $resetError = 'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.';
+            } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $password = (string) ($_POST['password'] ?? '');
+                $confirm = (string) ($_POST['password_confirmation'] ?? '');
+                if (strlen($password) < 8 || $password !== $confirm) {
+                    $resetError = 'Mật khẩu phải có ít nhất 8 ký tự và khớp xác nhận.';
+                } else {
+                    $customer = (new khachhang())->findByResetToken(hash('sha256', $token));
+                    (new khachhang())->updatePassword((int) $customer['id'], password_hash($password, PASSWORD_DEFAULT));
+                    header('Location: index.php?act=login&reset=1');
+                    exit;
+                }
+            }
+            include __DIR__ . "/../view/reset_password.php";
+            break;
         case 'logout':
-            unset($_SESSION['user_role']);
+            unset($_SESSION['user_role'], $_SESSION['customer_id'], $_SESSION['customer_name'], $_SESSION['customer_email']);
             header('Location: index.php?act=home');
             exit;
+        case 'customer_orders':
+            requireCustomer();
+            $orders = (new controller())->getCustomerOrders(customerId());
+            include __DIR__ . "/../view/customer_orders.php";
+            break;
+        case 'cancel_customer_order':
+            requireCustomer();
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            $reason = trim($_POST['ly_do_huy'] ?? '');
+            if (!$id || $reason === '' || mb_strlen($reason) > 1000) {
+                echo "<script>alert('Vui lòng nhập lý do hủy hợp lệ.'); window.location.href='index.php?act=customer_orders';</script>";
+                exit;
+            }
+            try {
+                $cancelledOrder = (new controller())->cancelCustomerOrder($id, $reason, customerId());
+                sendCustomerCancellationToShop($cancelledOrder);
+                header('Location: index.php?act=customer_orders');
+                exit;
+            } catch (Throwable $e) {
+                echo "<h3 style='color:red'>Không thể hủy đơn hàng: "
+                    . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</h3>";
+                echo "<a href='index.php?act=customer_orders'>Quay lại lịch sử đơn hàng</a>";
+                exit;
+            }
         case 'admin':
             requireManager();
             $controller = new controller();
@@ -45,15 +168,44 @@ if(isset($_REQUEST['act']))
         case 'update_order_status':
             requireManager();
             $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-            $status = $_POST['trang_thai'] ?? '';
-            $allowedStatuses = ['cho_xac_nhan', 'da_xac_nhan', 'dang_giao', 'da_giao', 'da_huy', 'hoan_tra'];
-            if (!$id || !in_array($status, $allowedStatuses, true)) {
+            $currentStatus = $_POST['trang_thai_hien_tai'] ?? '';
+            $nextStatus = $_POST['trang_thai_tiep_theo'] ?? '';
+            $statusFlow = [
+                'cho_xac_nhan' => 'da_xac_nhan',
+                'da_xac_nhan' => 'dang_giao',
+                'dang_giao' => 'da_giao',
+                'da_giao' => 'hoan_tra',
+            ];
+            if (!$id || !isset($statusFlow[$currentStatus]) || $statusFlow[$currentStatus] !== $nextStatus) {
                 echo "<script>alert('Thông tin trạng thái không hợp lệ.'); window.location.href='index.php?act=orders';</script>";
                 exit;
             }
-            (new controller())->updateOrderStatus($id, $status);
+            $updated = (new controller())->updateOrderStatus($id, $currentStatus, $nextStatus);
+            if (!$updated) {
+                echo "<script>alert('Đơn hàng đã được cập nhật hoặc trạng thái không còn hợp lệ.'); window.location.href='index.php?act=orders';</script>";
+                exit;
+            }
             header('Location: index.php?act=orders');
             exit;
+        case 'cancel_order':
+            requireManager();
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            $reason = trim($_POST['ly_do_huy'] ?? '');
+            if (!$id || $reason === '' || mb_strlen($reason) > 1000) {
+                echo "<script>alert('Vui lòng nhập lý do hủy hợp lệ.'); window.location.href='index.php?act=orders';</script>";
+                exit;
+            }
+            try {
+                $cancelledOrder = (new controller())->cancelOrder($id, $reason);
+                sendOrderCancellationEmail($cancelledOrder);
+                header('Location: index.php?act=orders');
+                exit;
+            } catch (Throwable $e) {
+                echo "<h3 style='color:red'>Không thể hủy đơn hàng: "
+                    . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</h3>";
+                echo "<a href='index.php?act=orders'>Quay lại danh sách đơn hàng</a>";
+                exit;
+            }
         case 'home':
             $controller = new controller();
             $danhsach = $controller->hienthisanpham();
@@ -170,6 +322,7 @@ if(isset($_REQUEST['act']))
             exit;
 
         case 'checkout':
+            requireCustomer();
             $controller = new controller();
             $cartItems = $controller->getCartItems($_SESSION['cart'] ?? []);
             if (empty($cartItems)) {
@@ -191,6 +344,7 @@ if(isset($_REQUEST['act']))
             break;
 
         case 'placeorder':
+            requireCustomer();
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo "<script>window.location.href = 'index.php?act=cart';</script>";
                 exit;
@@ -234,6 +388,7 @@ if(isset($_REQUEST['act']))
                 $discount = min($cartTotal, $discount);
             }
             $order = [
+                'customer_id' => customerId(),
                 'ma_donhang' => 'DH' . date('YmdHis') . strtoupper(bin2hex(random_bytes(2))),
                 'ten_khachhang' => $buyerName,
                 'sdt' => $phone,
@@ -277,6 +432,7 @@ if(isset($_REQUEST['act']))
             $controller = new controller();
             $danhmuc = $controller->hienthiDM();
             $danhsach = $controller->hienthisanpham();
+            $nextProductId = $controller->getNextProductId();
             $showAddForm = true;
             include __DIR__ . "/../view/sanpham.php";
             break;
@@ -292,6 +448,10 @@ if(isset($_REQUEST['act']))
                             alert('Tên danh mục không được để rỗng!'); 
                             window.history.back(); // Đẩy người dùng lùi lại trang trước
                           </script>";
+                    exit;
+                }
+                if ((new controller())->isDuplicate('category_name', $name)) {
+                    echo "<script>alert('Tên danh mục đã tồn tại!'); window.history.back();</script>";
                     exit;
                 }
                               
@@ -356,16 +516,18 @@ if(isset($_REQUEST['act']))
         case "xl_themsp":
         requireManager();
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $controller = new controller();
+            $id_sp = $controller->getNextProductId();
             
             $valided = true; // Cờ kiểm tra dữ liệu hợp lệ
 
             // 1. Kiểm tra Validate (Bắt lỗi bỏ trống)[cite: 10]
-            if(empty($_POST["id_sp"])){
-                $id_sp_er = "input id_sp";
-                $valided = false;
-            }
             if(empty($_POST["name"])){
                 $name_er = "input name";
+                $valided = false;
+            }
+            if ($controller->isDuplicate('product_name', trim($_POST['name'] ?? ''))) {
+                $name_er = "Tên sản phẩm đã tồn tại";
                 $valided = false;
             }
             if(empty($_POST["price"])){
@@ -394,7 +556,7 @@ if(isset($_REQUEST['act']))
                 $sp = new sanpham();
                 
                 // Gán giá trị từ form (POST) vào đối tượng sản phẩm
-                $sp->setId($_POST["id_sp"]);
+                $sp->setId($id_sp);
                 $sp->setName($_POST["name"]);
                 $sp->setPrice($_POST["price"]);
                 $sp->setMount($_POST["mount"]);
@@ -418,7 +580,6 @@ if(isset($_REQUEST['act']))
                 
                 // Gọi Controller để thực thi lưu vào Database[cite: 10]
                 if ($valided) {
-                    $controller = new controller();
                     $controller->themsp($sp);
                 }
             }
@@ -427,6 +588,7 @@ if(isset($_REQUEST['act']))
             $controller = new controller();
             $danhmuc = $controller->hienthidm();
             $danhsach = $controller->hienthisanpham();
+            $nextProductId = $controller->getNextProductId();
             $showAddForm = true;
             include __DIR__ . "/../view/sanpham.php";
         }
@@ -557,6 +719,10 @@ if(isset($_REQUEST['act']))
                             alert('Thông tin danh mục không hợp lệ!');
                             window.location.href = 'index.php?act=hienthiDM';
                           </script>";
+                    exit;
+                }
+                if ((new controller())->isDuplicate('category_name', $name, $id_dm)) {
+                    echo "<script>alert('Tên danh mục đã tồn tại!'); window.history.back();</script>";
                     exit;
                 }
 

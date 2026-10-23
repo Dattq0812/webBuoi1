@@ -9,9 +9,10 @@
     </div>
 
     <div class="card">
-        <form method="POST" action="index.php?act=add_danhmuc" style="display:flex; gap:10px; max-width:620px;">
-            <input type="text" name="name" placeholder="Nhập tên danh mục mới" required>
+        <form id="category-add-form" method="POST" action="index.php?act=add_danhmuc" style="display:flex; gap:10px; max-width:620px;">
+            <input id="category-name-input" type="text" name="name" placeholder="Nhập tên danh mục mới" required>
             <button type="submit">+ Thêm danh mục</button>
+            <span id="category-duplicate-message" style="color:var(--danger);"></span>
         </form>
     </div>
 
@@ -62,4 +63,31 @@ function editCategory(button) {
     row.querySelector('.btn-save').hidden = false;
     input.focus();
 }
+
+async function checkDuplicate(field, value, excludeId = '') {
+    const params = new URLSearchParams({act: 'check_duplicate', field, value});
+    if (excludeId) params.set('exclude_id', excludeId);
+    const response = await fetch('index.php?' + params.toString());
+    if (!response.ok) throw new Error('Không thể kiểm tra dữ liệu.');
+    return (await response.json()).duplicate === true;
+}
+
+const categoryForm = document.getElementById('category-add-form');
+const categoryInput = document.getElementById('category-name-input');
+const categoryMessage = document.getElementById('category-duplicate-message');
+categoryInput.addEventListener('input', async () => {
+    if (categoryInput.value.trim() === '') {
+        categoryMessage.textContent = '';
+        return;
+    }
+    try {
+        categoryMessage.textContent = await checkDuplicate('category_name', categoryInput.value)
+            ? 'Tên danh mục đã tồn tại.' : '';
+    } catch (error) {
+        categoryMessage.textContent = 'Không thể kiểm tra dữ liệu lúc này.';
+    }
+});
+categoryForm.addEventListener('submit', (event) => {
+    if (categoryMessage.textContent !== '') event.preventDefault();
+});
 </script>
