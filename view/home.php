@@ -89,17 +89,23 @@ $bannerProducts = array_values(array_filter($danhsach ?? [], static function (ar
                 || (int) $quarter['exported_quantity'] > 0,
             false
         );
-        $maxQuarterRevenue = max(array_map(
-            static fn (array $quarter): float => (float) $quarter['revenue'],
-            $quarterlyStatistics
-        ) ?: [1]);
-        $maxQuarterQuantity = max(array_map(
-            static fn (array $quarter): int => max(
-                (int) $quarter['imported_quantity'],
-                (int) $quarter['exported_quantity']
-            ),
-            $quarterlyStatistics
-        ) ?: [1]);
+        $maxQuarterRevenue = max(
+            1,
+            max(array_map(
+                static fn (array $quarter): float => (float) $quarter['revenue'],
+                $quarterlyStatistics
+            ) ?: [0])
+        );
+        $maxQuarterQuantity = max(
+            1,
+            max(array_map(
+                static fn (array $quarter): int => max(
+                    (int) $quarter['imported_quantity'],
+                    (int) $quarter['exported_quantity']
+                ),
+                $quarterlyStatistics
+            ) ?: [0])
+        );
         ?>
         <div class="statistics-charts">
             <div class="card">
