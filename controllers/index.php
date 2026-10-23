@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . "/controller.php";
+require_once __DIR__ . "/controller.php";
 require_once __DIR__ . "/../services/mailer.php";
 require_once __DIR__ . "/../services/auth.php";
 require_once __DIR__ . "/../services/customer_auth.php";

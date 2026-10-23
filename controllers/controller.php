@@ -1,9 +1,9 @@
 <?php
 
-include __DIR__ . "/danhmuc.php";
-include __DIR__ . "/../models/sanpham.php";
-include __DIR__ . "/../models/donhang.php";
-include __DIR__ . "/../models/duplicate_checker.php";
+require_once __DIR__ . "/danhmuc.php";
+require_once __DIR__ . "/../models/sanpham.php";
+require_once __DIR__ . "/../models/donhang.php";
+require_once __DIR__ . "/../models/duplicate_checker.php";
 require_once __DIR__ . "/../models/khachhang.php";
 
 class controller
