@@ -33,6 +33,8 @@
 
 - Đơn hàng lưu thông tin người mua, thanh toán, voucher và tổng tiền.
 - Chi tiết đơn lưu snapshot tên, đơn giá và số lượng sản phẩm.
+- Email xác nhận đơn hàng đính kèm hình ảnh sản phẩm còn tồn tại trong thư mục
+  `view/images/`.
 - Đơn hàng liên kết tài khoản qua `donhang.customer_id`.
 - Tồn kho được trừ khi đặt hàng và hoàn lại khi huỷ hợp lệ.
 - Trạng thái được cập nhật một chiều bởi quản lý.

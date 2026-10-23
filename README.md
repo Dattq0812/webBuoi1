@@ -26,6 +26,7 @@ trị của quản lý.
 - Xem lịch sử đơn hàng và trạng thái đơn hàng.
 - Huỷ đơn khi đơn còn ở trạng thái chờ xác nhận, kèm lý do.
 - Nhận email xác nhận đơn hàng và gửi thông báo huỷ đơn cho cửa hàng.
+- Email xác nhận đơn hàng có đính kèm các hình ảnh sản phẩm nếu file ảnh tồn tại.
 
 ### Quản lý
 

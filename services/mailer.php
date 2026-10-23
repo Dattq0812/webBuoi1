@@ -35,7 +35,14 @@ function sendOrderConfirmationEmail(array $order): void
     $mail->Subject = 'TechZone - Xác nhận đơn hàng ' . $order['ma_donhang'];
     $itemsHtml = '<table border="1" cellpadding="8" cellspacing="0"><tr><th>Sản phẩm</th><th>Đơn giá</th><th>Số lượng</th><th>Thành tiền</th></tr>';
     $itemsText = '';
+    $attachedImages = [];
     foreach ($order['items'] as $item) {
+        $imageName = basename((string) ($item['image'] ?? ''));
+        $imagePath = __DIR__ . '/../view/images/' . $imageName;
+        if ($imageName !== '' && !isset($attachedImages[$imageName]) && is_file($imagePath)) {
+            $mail->addAttachment($imagePath, $imageName);
+            $attachedImages[$imageName] = true;
+        }
         $itemsHtml .= '<tr><td>' . htmlspecialchars($item['Name'], ENT_QUOTES, 'UTF-8') . '</td>'
             . '<td>' . number_format($item['Price'], 0, ',', '.') . 'đ</td>'
             . '<td>' . (int) $item['quantity'] . '</td>'
@@ -44,12 +51,16 @@ function sendOrderConfirmationEmail(array $order): void
             . number_format($item['subtotal'], 0, ',', '.') . "đ\n";
     }
     $itemsHtml .= '</table>';
+    $attachmentMessage = empty($attachedImages)
+        ? ''
+        : '<p>Hình ảnh sản phẩm được đính kèm trong email này.</p>';
     $mail->Body = '<h2>Đặt hàng thành công</h2>'
         . '<p>Xin chào ' . htmlspecialchars($order['ten_khachhang'], ENT_QUOTES, 'UTF-8') . ',</p>'
         . '<p>Đơn hàng <strong>' . htmlspecialchars($order['ma_donhang'], ENT_QUOTES, 'UTF-8') . '</strong> đã được tiếp nhận.</p>'
         . '<p>Thanh toán: <strong>' . htmlspecialchars($order['phuong_thuc_thanh_toan'], ENT_QUOTES, 'UTF-8') . '</strong></p>'
         . ($order['ma_voucher'] !== '' ? '<p>Voucher: ' . htmlspecialchars($order['ma_voucher'], ENT_QUOTES, 'UTF-8') . ' - giảm ' . number_format($order['tien_giam'], 0, ',', '.') . 'đ</p>' : '')
         . '<h3>Sản phẩm đã đặt</h3>' . $itemsHtml
+        . $attachmentMessage
         . '<p>Tổng tiền dự kiến: <strong>' . number_format($order['total'], 0, ',', '.') . 'đ</strong></p>'
         . '<p>Địa chỉ giao hàng: ' . nl2br(htmlspecialchars($order['dia_chi'], ENT_QUOTES, 'UTF-8')) . '</p>';
     $mail->AltBody = 'Đơn hàng ' . $order['ma_donhang'] . " đã được tiếp nhận.\n\n"
