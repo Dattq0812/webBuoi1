@@ -90,6 +90,29 @@ class sanpham {
         );
     }
 
+    public function search(string $keyword, int $limit = 24): array {
+        $keyword = trim($keyword);
+        if ($keyword === '') {
+            return [];
+        }
+        $limit = max(1, min($limit, 50));
+        $xl = new xl_data();
+        return $xl->readPreparedAll(
+            "SELECT *
+             FROM sanpham
+             WHERE Mount > 0
+               AND (Name LIKE :keyword OR Decribe LIKE :keyword)
+             ORDER BY
+                CASE WHEN Name LIKE :exact_keyword THEN 0 ELSE 1 END,
+                Date_import DESC, id_sp DESC
+             LIMIT " . $limit,
+            [
+                ':keyword' => '%' . $keyword . '%',
+                ':exact_keyword' => $keyword . '%',
+            ]
+        );
+    }
+
     public function getNextId(): int {
         $xl = new xl_data();
         $result = $xl->readitem("SELECT COALESCE(MAX(id_sp), 0) + 1 AS next_id FROM sanpham");

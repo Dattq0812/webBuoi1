@@ -111,10 +111,65 @@
         .product-card-body strong { display: block; color: var(--primary); font-size: 18px; }
         .product-link { display: block; margin-top: 12px; color: var(--muted); font-size: 13px; font-weight: 700; }
         .site-footer { padding: 24px 0; color: #94a3b8; background: #0f172a; text-align: center; }
+        .contact-float {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .contact-float a {
+            display: inline-flex;
+            min-width: 82px;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            color: #fff;
+            border-radius: 999px;
+            box-shadow: 0 5px 14px #17203333;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .contact-zalo { background: #0068ff; }
+        .contact-facebook { background: #1877f2; }
+        .contact-float a:hover { transform: translateY(-2px); }
+        .search-box { position: relative; flex: 1 1 220px; max-width: 330px; }
+        .search-box form { display: flex; gap: 6px; }
+        .search-box input { padding: 9px 11px; }
+        .search-box button { padding: 9px 12px; }
+        .search-suggestions {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            left: 0;
+            z-index: 30;
+            display: none;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 10px 24px #17203326;
+        }
+        .search-suggestion {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            text-decoration: none;
+        }
+        .search-suggestion:hover { background: #eff6ff; }
+        .search-suggestion img { width: 34px; height: 42px; object-fit: cover; border-radius: 5px; }
+        .search-suggestion-info { min-width: 0; }
+        .search-suggestion-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+        .search-suggestion-price { color: var(--primary); font-size: 12px; }
         @media (max-width: 700px) {
             .topbar-inner, .nav-inner { width: min(100% - 24px, 1180px); }
             .nav-inner { flex-wrap: wrap; gap: 8px; padding: 12px 0; }
             .nav-links { width: 100%; overflow-x: auto; }
+            .search-box { order: 3; width: 100%; max-width: none; }
             .page-heading { align-items: start; flex-direction: column; }
             th, td { padding: 10px; }
         }
@@ -130,6 +185,15 @@
     <header class="navbar">
         <div class="nav-inner">
             <a class="brand" href="index.php?act=home">Tech<span>ZoneVN</span></a>
+            <div class="search-box">
+                <form method="get" action="index.php">
+                    <input id="product-search" type="search" name="q" placeholder="Tìm sản phẩm..."
+                           autocomplete="off" aria-label="Tìm kiếm sản phẩm">
+                    <input type="hidden" name="act" value="search">
+                    <button type="submit">Tìm</button>
+                </form>
+                <div id="search-suggestions" class="search-suggestions" role="listbox"></div>
+            </div>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.php?act=home">Trang chủ</a></li>
@@ -171,4 +235,57 @@
             <?php endif; ?>
         </div>
     </header>
+    <div class="contact-float" aria-label="Liên hệ TechZone">
+        <a class="contact-zalo" href="https://zalo.me/0942003937" target="_blank" rel="noopener noreferrer">Zalo</a>
+        <a class="contact-facebook" href="https://www.facebook.com/attran.622460" target="_blank" rel="noopener noreferrer">Facebook</a>
+    </div>
     <main>
+    <script>
+        (() => {
+            const input = document.getElementById('product-search');
+            const box = document.getElementById('search-suggestions');
+            if (!input || !box) return;
+            let timer;
+            input.addEventListener('input', () => {
+                window.clearTimeout(timer);
+                const keyword = input.value.trim();
+                if (keyword === '') {
+                    box.replaceChildren();
+                    box.style.display = 'none';
+                    return;
+                }
+                timer = window.setTimeout(async () => {
+                    try {
+                        const response = await fetch('index.php?act=search_suggestions&q=' + encodeURIComponent(keyword));
+                        const data = await response.json();
+                        box.replaceChildren();
+                        (data.products || []).forEach((product) => {
+                            const link = document.createElement('a');
+                            link.className = 'search-suggestion';
+                            link.href = 'index.php?act=chitietsp&idsp=' + product.id;
+                            if (product.image) {
+                                const image = document.createElement('img');
+                                image.src = 'view/images/' + encodeURIComponent(product.image);
+                                image.alt = '';
+                                link.appendChild(image);
+                            }
+                            const info = document.createElement('span');
+                            info.className = 'search-suggestion-info';
+                            info.innerHTML = '<span class="search-suggestion-name"></span><span class="search-suggestion-price"></span>';
+                            info.querySelector('.search-suggestion-name').textContent = product.name;
+                            info.querySelector('.search-suggestion-price').textContent = product.price;
+                            link.appendChild(info);
+                            box.appendChild(link);
+                        });
+                        box.style.display = data.products && data.products.length ? 'block' : 'none';
+                    } catch (error) {
+                        box.replaceChildren();
+                        box.style.display = 'none';
+                    }
+                }, 220);
+            });
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.search-box')) box.style.display = 'none';
+            });
+        })();
+    </script>

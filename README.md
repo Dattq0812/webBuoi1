@@ -10,6 +10,8 @@ trị của quản lý.
 ### Khách hàng
 
 - Xem danh sách sản phẩm, chi tiết sản phẩm và sản phẩm còn hàng.
+- Tìm kiếm sản phẩm theo tên hoặc mô tả; gợi ý được tải tự động theo từng ký
+  tự nhập.
 - Trang chủ ưu tiên đề xuất sản phẩm bán chạy theo số lượng đã bán và sản phẩm
   mới lên kệ theo ngày nhập.
 - Thêm sản phẩm vào giỏ hàng, cập nhật số lượng và xoá sản phẩm.
@@ -179,6 +181,7 @@ vendor/                   Dependency Composer
 |---|---|---|
 | `index.php?act=home` | Công khai | Trang chủ và danh sách sản phẩm |
 | `index.php?act=chitietsp&idsp=...` | Công khai | Chi tiết sản phẩm |
+| `index.php?act=search&q=...` | Công khai | Tìm kiếm sản phẩm |
 | `index.php?act=register` | Công khai | Đăng ký khách hàng |
 | `index.php?act=login` | Công khai | Đăng nhập quản lý/khách hàng |
 | `index.php?act=logout` | Đã đăng nhập | Đăng xuất |

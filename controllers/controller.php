@@ -50,6 +50,10 @@ class controller
         return (new sanpham())->getNewest($limit);
     }
 
+    public function searchProducts(string $keyword, int $limit = 24): array {
+        return (new sanpham())->search($keyword, $limit);
+    }
+
     public function getNextProductId(): int {
         return (new sanpham())->getNextId();
     }
