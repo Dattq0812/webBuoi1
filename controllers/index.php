@@ -191,6 +191,7 @@ if(isset($_REQUEST['act']))
             requireManager();
             $controller = new controller();
             $danhsach = $controller->hienthisanpham();
+            $revenueStatistics = $controller->getRevenueStatistics();
             include __DIR__ . "/../view/home.php";
             break;
         case 'orders':

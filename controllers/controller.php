@@ -103,6 +103,10 @@ class controller
         return (new donhang())->getAll();
     }
 
+    public function getRevenueStatistics(): array {
+        return (new donhang())->getRevenueStatistics();
+    }
+
     public function updateOrderStatus(int $id, string $currentStatus, string $nextStatus): bool {
         return (new donhang())->updateStatus($id, $currentStatus, $nextStatus);
     }

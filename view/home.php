@@ -28,6 +28,33 @@
             </a>
         </div>
     </section>
+    <section style="margin-top:30px;">
+        <div class="page-heading">
+            <div>
+                <h2>Thống kê doanh số</h2>
+                <p class="subtitle">Doanh thu và số đơn, không bao gồm đơn đã huỷ.</p>
+            </div>
+        </div>
+        <?php
+        $revenueStatistics = $revenueStatistics ?? [];
+        $salesPeriods = [
+            'week' => ['label' => 'Tuần này', 'revenue' => $revenueStatistics['week_revenue'] ?? 0, 'orders' => $revenueStatistics['week_orders'] ?? 0],
+            'month' => ['label' => 'Tháng này', 'revenue' => $revenueStatistics['month_revenue'] ?? 0, 'orders' => $revenueStatistics['month_orders'] ?? 0],
+            'year' => ['label' => 'Năm nay', 'revenue' => $revenueStatistics['year_revenue'] ?? 0, 'orders' => $revenueStatistics['year_orders'] ?? 0],
+        ];
+        ?>
+        <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px;">
+            <?php foreach ($salesPeriods as $period): ?>
+                <div class="card">
+                    <h3><?php echo $period['label']; ?></h3>
+                    <strong style="display:block; margin:12px 0 6px; color:var(--primary); font-size:24px;">
+                        <?php echo number_format((float) $period['revenue'], 0, ',', '.'); ?>đ
+                    </strong>
+                    <p class="subtitle"><?php echo (int) $period['orders']; ?> đơn hàng</p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
     <?php endif; ?>
 
     <?php

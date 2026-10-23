@@ -78,6 +78,36 @@ class donhang
         );
     }
 
+    public function getRevenueStatistics(): array
+    {
+        $xl = new xl_data();
+        return $xl->readPrepared(
+            "SELECT
+                COALESCE(SUM(CASE
+                    WHEN YEARWEEK(ngay_dat, 1) = YEARWEEK(CURDATE(), 1)
+                    THEN tong_tien ELSE 0 END), 0) AS week_revenue,
+                COALESCE(SUM(CASE
+                    WHEN YEAR(ngay_dat) = YEAR(CURDATE())
+                     AND MONTH(ngay_dat) = MONTH(CURDATE())
+                    THEN tong_tien ELSE 0 END), 0) AS month_revenue,
+                COALESCE(SUM(CASE
+                    WHEN YEAR(ngay_dat) = YEAR(CURDATE())
+                    THEN tong_tien ELSE 0 END), 0) AS year_revenue,
+                SUM(CASE
+                    WHEN YEARWEEK(ngay_dat, 1) = YEARWEEK(CURDATE(), 1)
+                    THEN 1 ELSE 0 END) AS week_orders,
+                SUM(CASE
+                    WHEN YEAR(ngay_dat) = YEAR(CURDATE())
+                     AND MONTH(ngay_dat) = MONTH(CURDATE())
+                    THEN 1 ELSE 0 END) AS month_orders,
+                SUM(CASE
+                    WHEN YEAR(ngay_dat) = YEAR(CURDATE())
+                    THEN 1 ELSE 0 END) AS year_orders
+             FROM donhang
+             WHERE trang_thai <> 'da_huy'"
+        );
+    }
+
     public function getByCustomer(int $customerId): array
     {
         $xl = new xl_data();

@@ -32,6 +32,8 @@ trị của quản lý.
 
 - Đăng nhập bằng tài khoản được cấu hình trong `.env`.
 - Xem khu vực quản trị và danh sách đơn hàng.
+- Xem thống kê doanh thu và số đơn theo tuần, tháng và năm hiện tại; đơn đã huỷ
+  không được tính.
 - Chuyển trạng thái đơn theo đúng thứ tự:
 
   `Chờ xác nhận -> Đã xác nhận -> Đang giao -> Đã giao -> Hoàn trả`
