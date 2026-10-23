@@ -29,6 +29,33 @@
         .nav-links { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
         .nav-links a { display: block; padding: 10px 14px; border-radius: 8px; color: var(--muted); text-decoration: none; font-weight: 600; }
         .nav-links a:hover, .nav-links .active { color: var(--primary); background: #eff6ff; }
+        .customer-account {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-left: auto;
+            padding: 7px 11px;
+            color: #334155;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            line-height: 1.25;
+        }
+        .customer-account:hover { border-color: #93c5fd; background: #eff6ff; }
+        .customer-avatar {
+            display: grid;
+            width: 31px;
+            height: 31px;
+            place-items: center;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            border-radius: 50%;
+            font-weight: 800;
+        }
+        .customer-account-info { display: flex; flex-direction: column; }
+        .customer-account-name { color: #0f172a; font-size: 13px; font-weight: 800; }
+        .customer-account-contact { color: var(--muted); font-size: 11px; }
         main { padding: 34px 0 60px; }
         .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px; }
         h1, h2, p { margin-top: 0; }
@@ -76,7 +103,7 @@
     </div>
     <header class="navbar">
         <div class="nav-inner">
-            <a class="brand" href="index.php?act=home">Tech<span>Zone</span></a>
+            <a class="brand" href="index.php?act=home">Tech<span>ZoneVN</span></a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.php?act=home">Trang chủ</a></li>
@@ -97,6 +124,25 @@
                     <?php endif; ?>
                 </ul>
             </nav>
+            <?php if (isCustomer()): ?>
+                <?php
+                    $customerName = trim((string) ($_SESSION['customer_name'] ?? 'Khách hàng'));
+                    $customerContact = trim((string) ($_SESSION['customer_email'] ?? ''));
+                    if ($customerContact === '') {
+                        $customerContact = trim((string) ($_SESSION['customer_phone'] ?? ''));
+                    }
+                    $customerInitial = function_exists('mb_substr')
+                        ? mb_strtoupper(mb_substr($customerName, 0, 1, 'UTF-8'), 'UTF-8')
+                        : strtoupper(substr($customerName, 0, 1));
+                ?>
+                <a class="customer-account" href="index.php?act=customer_orders" title="Xem thông tin đơn hàng của bạn">
+                    <span class="customer-avatar"><?php echo htmlspecialchars($customerInitial, ENT_QUOTES, 'UTF-8'); ?></span>
+                    <span class="customer-account-info">
+                        <span class="customer-account-name"><?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <span class="customer-account-contact"><?php echo htmlspecialchars($customerContact ?: 'Tài khoản khách hàng', ENT_QUOTES, 'UTF-8'); ?></span>
+                    </span>
+                </a>
+            <?php endif; ?>
         </div>
     </header>
     <main>

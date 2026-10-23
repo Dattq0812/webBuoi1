@@ -37,7 +37,12 @@ if(isset($_REQUEST['act']))
                 if ($configuredUsername !== '' && $username === $configuredUsername
                     && $configuredPassword !== '' && hash_equals($configuredPassword, $password)) {
                     session_regenerate_id(true);
-                    unset($_SESSION['customer_id'], $_SESSION['customer_name'], $_SESSION['customer_email']);
+                    unset(
+                        $_SESSION['customer_id'],
+                        $_SESSION['customer_name'],
+                        $_SESSION['customer_email'],
+                        $_SESSION['customer_phone']
+                    );
                     $_SESSION['user_role'] = 'manager';
                     header('Location: index.php?act=admin');
                     exit;
@@ -127,7 +132,13 @@ if(isset($_REQUEST['act']))
             include __DIR__ . "/../view/reset_password.php";
             break;
         case 'logout':
-            unset($_SESSION['user_role'], $_SESSION['customer_id'], $_SESSION['customer_name'], $_SESSION['customer_email']);
+            unset(
+                $_SESSION['user_role'],
+                $_SESSION['customer_id'],
+                $_SESSION['customer_name'],
+                $_SESSION['customer_email'],
+                $_SESSION['customer_phone']
+            );
             header('Location: index.php?act=home');
             exit;
         case 'customer_orders':

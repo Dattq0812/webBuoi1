@@ -16,5 +16,5 @@ $_REQUEST['act'] = $act;
     }
     require_once __DIR__ . "/view/header.php";
     require_once __DIR__ . "/controllers/index.php"; 
-echo '</main><footer class="site-footer">TechZone &copy; 2026 - Thiết bị công nghệ chính hãng</footer></body></html>';
+echo '</main><footer class="site-footer">TechZoneVN &copy; 2026 - Thiết bị công nghệ chính hãng</footer></body></html>';
 ?>

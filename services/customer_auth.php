@@ -22,9 +22,16 @@ function customerId(): int
 function customerLogin(array $customer): void
 {
     session_regenerate_id(true);
-    unset($_SESSION['user_role'], $_SESSION['customer_id'], $_SESSION['customer_name'], $_SESSION['customer_email']);
+    unset(
+        $_SESSION['user_role'],
+        $_SESSION['customer_id'],
+        $_SESSION['customer_name'],
+        $_SESSION['customer_email'],
+        $_SESSION['customer_phone']
+    );
     $_SESSION['user_role'] = 'customer';
     $_SESSION['customer_id'] = (int) $customer['id'];
     $_SESSION['customer_name'] = $customer['ho_ten'];
     $_SESSION['customer_email'] = $customer['email'] ?? '';
+    $_SESSION['customer_phone'] = $customer['sdt'] ?? '';
 }

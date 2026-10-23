@@ -9,7 +9,7 @@
             <label>Email</label><input name="email" type="email"><br><br>
             <label>Mật khẩu</label><input name="password" type="password" minlength="8" required><br><br>
             <label>Xác nhận mật khẩu</label><input name="password_confirmation" type="password" minlength="8" required><br><br>
-            <button type="submit">Đăng ký</button>
+            <button class="btn"; type="submit">Đăng ký</button>
             <a class="btn" style="margin-left:8px; background:#64748b;" href="index.php?act=login">Đăng nhập</a>
         </form>
     </div>

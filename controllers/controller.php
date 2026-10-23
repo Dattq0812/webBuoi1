@@ -4,7 +4,7 @@ include __DIR__ . "/danhmuc.php";
 include __DIR__ . "/../models/sanpham.php";
 include __DIR__ . "/../models/donhang.php";
 include __DIR__ . "/../models/duplicate_checker.php";
-include __DIR__ . "/../models/khachhang.php";
+require_once __DIR__ . "/../models/khachhang.php";
 
 class controller
 {
