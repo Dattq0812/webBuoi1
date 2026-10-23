@@ -20,7 +20,7 @@
             <a class="card" href="index.php?act=hienthiSP" style="text-decoration:none;">
                 <div style="font-size:30px;">▣</div><h2>Sản phẩm</h2><p class="subtitle">Quản lý kho và thông tin sản phẩm.</p>
             </a>
-            <a class="card" href="#" style="text-decoration:none;">
+            <a class="card" href="index.php?act=orders" style="text-decoration:none;">
                 <div style="font-size:30px;">◷</div><h2>Đơn hàng</h2><p class="subtitle">Theo dõi và xử lý đơn hàng.</p>
             </a>
             <a class="card" href="#" style="text-decoration:none;">

@@ -19,5 +19,19 @@ class xl_data extends database{
         $statement = $this->connection_database()->prepare($sql);
         return $statement->execute($params);
     }
+
+    public function transaction(callable $callback): void {
+        $connection = $this->connection_database();
+        $connection->beginTransaction();
+        try {
+            $callback($connection);
+            $connection->commit();
+        } catch (Throwable $exception) {
+            if ($connection->inTransaction()) {
+                $connection->rollBack();
+            }
+            throw $exception;
+        }
+    }
 }
 ?>

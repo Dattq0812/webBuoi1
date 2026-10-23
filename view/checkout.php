@@ -1,4 +1,7 @@
-<?php $cartTotal = $cartTotal ?? 0; ?>
+<?php
+$cartTotal = $cartTotal ?? 0;
+$voucherOptions = $voucherOptions ?? [];
+?>
 
 <div class="container">
     <div class="page-heading">
@@ -20,10 +23,44 @@
             <textarea name="address" rows="4" required><?php echo htmlspecialchars($_POST['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea><br><br>
             <label>Ghi chú (không bắt buộc)</label>
             <textarea name="note" rows="3"><?php echo htmlspecialchars($_POST['note'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea><br><br>
-            <div style="padding:15px; background:#eff6ff; border-radius:8px; margin-bottom:18px;">
-                Tổng thanh toán dự kiến: <strong style="color:var(--primary); font-size:20px;"><?php echo number_format($cartTotal, 0, ',', '.'); ?>đ</strong>
-            </div>
+            <label>Phương thức thanh toán</label>
+            <select name="payment_method" required>
+                <option value="cod" <?php echo ($_POST['payment_method'] ?? '') === 'cod' ? 'selected' : ''; ?>>Thanh toán khi nhận hàng (COD)</option>
+                <option value="bank_transfer" <?php echo ($_POST['payment_method'] ?? '') === 'bank_transfer' ? 'selected' : ''; ?>>Chuyển khoản ngân hàng</option>
+            </select><br><br>
+            <label>Mã voucher</label>
+            <input type="text" name="voucher_code" id="voucher-code" maxlength="30"
+                   placeholder="Ví dụ: TECH10"
+                   value="<?php echo htmlspecialchars($_POST['voucher_code'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+            <small class="subtitle">TECH10 giảm 10%; TECH50K giảm 50.000đ.</small><br><br>
+            <div class="card" style="padding:15px; background:#eff6ff;">
+                <div>Tạm tính: <strong><?php echo number_format($cartTotal, 0, ',', '.'); ?>đ</strong></div>
+                <div>Giảm voucher: <strong id="discount-preview">0đ</strong></div>
+                <div style="margin-top:6px;">Tổng thanh toán: <strong id="total-preview" style="color:var(--primary); font-size:20px;"><?php echo number_format($cartTotal, 0, ',', '.'); ?>đ</strong></div>
+            </div><br>
             <button type="submit">Xác nhận đặt hàng</button>
         </form>
     </div>
 </div>
+<script>
+const voucherPrices = <?php echo json_encode($voucherOptions, JSON_UNESCAPED_UNICODE); ?>;
+const subtotal = <?php echo json_encode((float) $cartTotal); ?>;
+const voucherInput = document.getElementById('voucher-code');
+const discountPreview = document.getElementById('discount-preview');
+const totalPreview = document.getElementById('total-preview');
+function formatPrice(value) {
+    return new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+}
+function previewVoucher() {
+    const voucher = voucherPrices[voucherInput.value.trim().toUpperCase()];
+    let discount = 0;
+    if (voucher) {
+        discount = voucher.type === 'percent' ? subtotal * voucher.value / 100 : voucher.value;
+        discount = Math.min(subtotal, discount);
+    }
+    discountPreview.textContent = formatPrice(discount);
+    totalPreview.textContent = formatPrice(subtotal - discount);
+}
+voucherInput.addEventListener('input', previewVoucher);
+previewVoucher();
+</script>

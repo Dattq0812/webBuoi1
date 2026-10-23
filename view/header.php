@@ -84,6 +84,7 @@
                         <li><a href="index.php?act=admin">Quản trị</a></li>
                         <li><a href="index.php?act=hienthiDM">Danh mục</a></li>
                         <li><a href="index.php?act=hienthiSP">Sản phẩm</a></li>
+                        <li><a href="index.php?act=orders">Đơn hàng</a></li>
                     <?php endif; ?>
                     <li><a href="index.php?act=cart">Giỏ hàng (<?php echo isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0; ?>)</a></li>
                     <?php if (isManager()): ?>

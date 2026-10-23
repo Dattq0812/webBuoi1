@@ -80,9 +80,17 @@ class controller
         return $items;
     }
 
-    public function createOrder(array $order): void {
+    public function createOrder(array $order, array $items): void {
         $model = new donhang();
-        $model->create($order);
+        $model->create($order, $items);
+    }
+
+    public function getOrders(): array {
+        return (new donhang())->getAll();
+    }
+
+    public function updateOrderStatus(int $id, string $status): void {
+        (new donhang())->updateStatus($id, $status);
     }
 }
 ?>

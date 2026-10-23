@@ -37,6 +37,23 @@ if(isset($_REQUEST['act']))
             $danhsach = $controller->hienthisanpham();
             include __DIR__ . "/../view/home.php";
             break;
+        case 'orders':
+            requireManager();
+            $orders = (new controller())->getOrders();
+            include __DIR__ . "/../view/orders.php";
+            break;
+        case 'update_order_status':
+            requireManager();
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            $status = $_POST['trang_thai'] ?? '';
+            $allowedStatuses = ['cho_xac_nhan', 'da_xac_nhan', 'dang_giao', 'da_giao', 'da_huy', 'hoan_tra'];
+            if (!$id || !in_array($status, $allowedStatuses, true)) {
+                echo "<script>alert('Thông tin trạng thái không hợp lệ.'); window.location.href='index.php?act=orders';</script>";
+                exit;
+            }
+            (new controller())->updateOrderStatus($id, $status);
+            header('Location: index.php?act=orders');
+            exit;
         case 'home':
             $controller = new controller();
             $danhsach = $controller->hienthisanpham();
@@ -166,6 +183,10 @@ if(isset($_REQUEST['act']))
             foreach ($cartItems as $item) {
                 $cartTotal += $item['subtotal'];
             }
+            $voucherOptions = [
+                'TECH10' => ['type' => 'percent', 'value' => 10],
+                'TECH50K' => ['type' => 'fixed', 'value' => 50000],
+            ];
             include __DIR__ . "/../view/checkout.php";
             break;
 
@@ -178,8 +199,15 @@ if(isset($_REQUEST['act']))
             $phone = trim($_POST['phone'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $address = trim($_POST['address'] ?? '');
+            $paymentMethod = $_POST['payment_method'] ?? '';
+            $voucherCode = strtoupper(trim($_POST['voucher_code'] ?? ''));
+            $voucherOptions = [
+                'TECH10' => ['type' => 'percent', 'value' => 10],
+                'TECH50K' => ['type' => 'fixed', 'value' => 50000],
+            ];
             if ($buyerName === '' || $address === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)
-                || !preg_match('/^[0-9+ ()-]{8,20}$/', $phone)) {
+                || !preg_match('/^[0-9+ ()-]{8,20}$/', $phone)
+                || !in_array($paymentMethod, ['cod', 'bank_transfer'], true)) {
                 echo "<script>alert('Vui lòng nhập đúng họ tên, địa chỉ, số điện thoại và email.'); window.history.back();</script>";
                 exit;
             }
@@ -193,6 +221,18 @@ if(isset($_REQUEST['act']))
             foreach ($cartItems as $item) {
                 $cartTotal += $item['subtotal'];
             }
+            if ($voucherCode !== '' && !isset($voucherOptions[$voucherCode])) {
+                echo "<script>alert('Mã voucher không hợp lệ.'); window.history.back();</script>";
+                exit;
+            }
+            $discount = 0;
+            if ($voucherCode !== '') {
+                $voucher = $voucherOptions[$voucherCode];
+                $discount = $voucher['type'] === 'percent'
+                    ? $cartTotal * $voucher['value'] / 100
+                    : $voucher['value'];
+                $discount = min($cartTotal, $discount);
+            }
             $order = [
                 'ma_donhang' => 'DH' . date('YmdHis') . strtoupper(bin2hex(random_bytes(2))),
                 'ten_khachhang' => $buyerName,
@@ -200,15 +240,20 @@ if(isset($_REQUEST['act']))
                 'email' => $email,
                 'dia_chi' => $address,
                 'ghi_chu' => trim($_POST['note'] ?? ''),
-                'total' => $cartTotal,
+                'phuong_thuc_thanh_toan' => $paymentMethod,
+                'ma_voucher' => $voucherCode,
+                'tien_giam' => $discount,
+                'total' => $cartTotal - $discount,
+                'items' => $cartItems,
             ];
             try {
-                $controller->createOrder($order);
+                $controller->createOrder($order, $cartItems);
             } catch (Throwable $e) {
                 echo "<h3 style='color:red'>Không thể lưu đơn hàng: "
                     . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8')
                     . "</h3>";
-                echo "<p>Vui lòng kiểm tra bảng <code>donhang</code> và kết nối database rồi thử lại.</p>";
+                echo "<p>Đơn hàng chưa được tạo và số lượng tồn kho chưa thay đổi. "
+                    . "Vui lòng quay lại giỏ hàng để kiểm tra lại.</p>";
                 echo "<a href='index.php?act=cart'>Quay lại giỏ hàng</a>";
                 exit;
             }
@@ -222,6 +267,9 @@ if(isset($_REQUEST['act']))
             }
             $_SESSION['cart'] = [];
             $orderCode = $order['ma_donhang'];
+            $paymentMethod = $order['phuong_thuc_thanh_toan'];
+            $voucherCode = $order['ma_voucher'];
+            $discount = $order['tien_giam'];
             include __DIR__ . "/../view/order_success.php";
             break;
         case 'addsp':
