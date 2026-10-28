@@ -93,9 +93,24 @@ class sanpham {
 
     // Hàm Thêm sản phẩm
     public function themsp(sanpham $sp){
-        $xl = new xl_data();$sql = "INSERT INTO `sanpham` (`id_sp`, `Name`, `Price`, `Date_import`, `Viewsp`, `Decribe`, `Mount`, `Sale`, `image`, `id_danhmuc`) 
-                VALUES ('".$sp->getId()."', '".$sp->getName()."', '".$sp->getPrice()."', '".$sp->getDate_import()."', '0', '".$sp->getDecribe()."', '".$sp->getMount()."', '".$sp->getSale()."', '".$sp->getImage()."', '".$sp->getId_danhmuc()."');";
-        $xl->execute_item($sql);
+        $xl = new xl_data();
+        $xl->executePrepared(
+            "INSERT INTO sanpham
+                (id_sp, Name, Price, Date_import, Viewsp, Decribe, Mount, Sale, image, id_danhmuc)
+             VALUES
+                (:id_sp, :name, :price, :date_import, 0, :decribe, :mount, :sale, :image, :id_danhmuc)",
+            [
+                ':id_sp' => (int) $sp->getId(),
+                ':name' => (string) $sp->getName(),
+                ':price' => (float) $sp->getPrice(),
+                ':date_import' => (string) $sp->getDate_import(),
+                ':decribe' => (string) $sp->getDecribe(),
+                ':mount' => (int) $sp->getMount(),
+                ':sale' => (float) $sp->getSale(),
+                ':image' => (string) $sp->getImage(),
+                ':id_danhmuc' => (int) $sp->getId_danhmuc(),
+            ]
+        );
     }
 
     // Hàm Lấy tất cả danh sách sản phẩm

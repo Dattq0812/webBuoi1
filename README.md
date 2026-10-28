@@ -12,6 +12,9 @@ trị của quản lý.
 - Xem danh sách sản phẩm, chi tiết sản phẩm và sản phẩm còn hàng.
 - Tìm kiếm sản phẩm theo tên hoặc mô tả; gợi ý được tải tự động theo từng ký
   tự nhập.
+- Xem điểm đánh giá trung bình và các bài đánh giá sản phẩm.
+- Đăng đánh giá 1-5 sao kèm tối đa 5 ảnh, bình luận vào bài đánh giá khác và
+  xem phản hồi từ quản lý.
 - Khách hàng thân thiết được xếp hạng theo tổng chi tiêu hợp lệ: Silver trên
   50.000.000đ (giảm 3%), Golden trên 150.000.000đ (giảm 5%), Platinum trên
   500.000.000đ (giảm 10%) và Diamond trên 1.000.000.000đ (giảm 15%).
@@ -88,6 +91,8 @@ trị của quản lý.
   bốn quý bằng 0 và thông báo rõ ràng.
 - Tự động đề xuất mã sản phẩm tiếp theo.
 - Kiểm tra dữ liệu trùng bằng request AJAX và kiểm tra lại ở server.
+- Quản lý bài đánh giá sản phẩm: xem nội dung và ảnh, trả lời, ẩn/hiện hoặc
+  xoá bài đánh giá.
 
 ## Yêu cầu môi trường
 
@@ -115,6 +120,8 @@ trị của quản lý.
    - `chitietdonhang`: các sản phẩm trong đơn hàng.
    - `inventory_movements`: lịch sử nhập, xuất và hoàn nhập tồn kho.
    - `order_reviews`: đánh giá và cảm nhận của khách hàng sau khi nhận hàng.
+   - `product_reviews`, `product_review_images` và `product_review_comments`:
+     đánh giá sản phẩm, ảnh đính kèm và các bình luận.
    - `khachhang`: tài khoản khách hàng và thông tin đặt lại mật khẩu.
 
    Repository hiện không chứa file migration/schema SQL. Vì vậy cần dùng schema
@@ -220,6 +227,9 @@ vendor/                   Dependency Composer
 |---|---|---|
 | `index.php?act=home` | Công khai | Trang chủ và danh sách sản phẩm |
 | `index.php?act=chitietsp&idsp=...` | Công khai | Chi tiết sản phẩm |
+| `index.php?act=submit_product_review` | Khách hàng | Đăng đánh giá sản phẩm kèm ảnh |
+| `index.php?act=comment_product_review` | Khách hàng/Quản lý | Bình luận hoặc trả lời bài đánh giá |
+| `index.php?act=review_management` | Quản lý | Xem và kiểm duyệt đánh giá |
 | `index.php?act=search&q=...` | Công khai | Tìm kiếm sản phẩm |
 | `index.php?act=customer_profile` | Khách hàng | Hồ sơ và hạng thành viên |
 | `index.php?act=customers` | Quản lý | Danh sách khách hàng và hạng |

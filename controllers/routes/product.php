@@ -38,6 +38,9 @@ switch ($act)
             }
 
             $product = $products[0];
+            $reviewController = new controller();
+            $productReviewSummary = $reviewController->getProductReviewSummary($id_sp);
+            $productReviews = $reviewController->getProductReviews($id_sp);
             include __DIR__ . "/../../view/chitietsp.php";
             break;
         case 'addsp':
@@ -252,4 +255,3 @@ switch ($act)
 
 }
 ?>
-

@@ -5,6 +5,7 @@ require_once __DIR__ . "/../models/sanpham.php";
 require_once __DIR__ . "/../models/donhang.php";
 require_once __DIR__ . "/../models/duplicate_checker.php";
 require_once __DIR__ . "/../models/khachhang.php";
+require_once __DIR__ . "/../models/danhgia.php";
 
 class controller
 {
@@ -154,6 +155,47 @@ class controller
 
     public function getCustomersWithLoyalty(): array {
         return (new khachhang())->getAllWithLoyalty();
+    }
+
+    public function getProductReviewSummary(int $productId): array {
+        return (new danhgia())->getSummary($productId);
+    }
+
+    public function getProductReviews(int $productId, bool $includeHidden = false): array {
+        return (new danhgia())->getForProduct($productId, $includeHidden);
+    }
+
+    public function createProductReview(
+        int $productId,
+        int $customerId,
+        int $rating,
+        string $body,
+        array $imagePaths = []
+    ): int {
+        return (new danhgia())->create($productId, $customerId, $rating, $body, $imagePaths);
+    }
+
+    public function commentProductReview(
+        int $reviewId,
+        ?int $customerId,
+        string $authorType,
+        string $authorName,
+        string $body,
+        bool $allowHidden = false
+    ): void {
+        (new danhgia())->addComment($reviewId, $customerId, $authorType, $authorName, $body, $allowHidden);
+    }
+
+    public function getReviewsForManagement(): array {
+        return (new danhgia())->getAllForManagement();
+    }
+
+    public function updateProductReviewStatus(int $reviewId, string $status): void {
+        (new danhgia())->updateStatus($reviewId, $status);
+    }
+
+    public function deleteProductReview(int $reviewId): void {
+        (new danhgia())->delete($reviewId);
     }
 }
 ?>
