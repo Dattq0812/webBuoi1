@@ -170,17 +170,29 @@ class sanpham {
         $limit = max(1, min($limit, 50));
         $xl = new xl_data();
         return $xl->readPreparedAll(
-            "SELECT *
-             FROM sanpham
-             WHERE Mount > 0
-               AND (Name LIKE :keyword OR Decribe LIKE :keyword)
+            "SELECT sp.*, dm.name AS category_name
+             FROM sanpham sp
+             LEFT JOIN danhmuc dm ON dm.id = sp.id_danhmuc
+             WHERE sp.Mount > 0
+               AND (
+                    CONVERT(sp.Name USING utf8mb4) COLLATE utf8mb4_general_ci LIKE :keyword_name
+                    OR CONVERT(sp.Decribe USING utf8mb4) COLLATE utf8mb4_general_ci LIKE :keyword_description
+                    OR CONVERT(COALESCE(dm.name, '') USING utf8mb4) COLLATE utf8mb4_general_ci LIKE :keyword_category
+               )
              ORDER BY
-                CASE WHEN Name LIKE :exact_keyword THEN 0 ELSE 1 END,
-                Date_import DESC, id_sp DESC
+                CASE
+                    WHEN CONVERT(sp.Name USING utf8mb4) COLLATE utf8mb4_general_ci LIKE :prefix_name THEN 0
+                    WHEN CONVERT(COALESCE(dm.name, '') USING utf8mb4) COLLATE utf8mb4_general_ci LIKE :prefix_category THEN 1
+                    ELSE 2
+                END,
+                sp.Date_import DESC, sp.id_sp DESC
              LIMIT " . $limit,
             [
-                ':keyword' => '%' . $keyword . '%',
-                ':exact_keyword' => $keyword . '%',
+                ':keyword_name' => '%' . $keyword . '%',
+                ':keyword_description' => '%' . $keyword . '%',
+                ':keyword_category' => '%' . $keyword . '%',
+                ':prefix_name' => $keyword . '%',
+                ':prefix_category' => $keyword . '%',
             ]
         );
     }

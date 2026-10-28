@@ -51,8 +51,9 @@ $productReviews = $productReviews ?? [];
                 </button>
             </form>
         </div>
+    </div>
 
-        <section class="card product-reviews-section">
+    <section class="card product-reviews-section">
             <div class="page-heading" style="margin-bottom:18px;">
                 <div>
                     <h2>Đánh giá sản phẩm</h2>
@@ -125,8 +126,7 @@ $productReviews = $productReviews ?? [];
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-        </section>
-    </div>
+    </section>
 </div>
 
 <style>

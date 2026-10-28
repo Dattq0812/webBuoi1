@@ -10,8 +10,9 @@ trị của quản lý.
 ### Khách hàng
 
 - Xem danh sách sản phẩm, chi tiết sản phẩm và sản phẩm còn hàng.
-- Tìm kiếm sản phẩm theo tên hoặc mô tả; gợi ý được tải tự động theo từng ký
-  tự nhập.
+- Tìm kiếm sản phẩm theo tên, mô tả hoặc danh mục; tìm kiếm không phân biệt
+  dấu tiếng Việt nên các từ không dấu vẫn tìm được kết quả tương ứng. Gợi ý
+  sản phẩm được tải tự động theo từng ký tự nhập.
 - Xem điểm đánh giá trung bình và các bài đánh giá sản phẩm.
 - Đăng đánh giá 1-5 sao kèm tối đa 5 ảnh, bình luận vào bài đánh giá khác và
   xem phản hồi từ quản lý.

@@ -34,6 +34,9 @@ $searchResults = $searchResults ?? [];
                     <div class="product-card-body">
                         <h3><?php echo htmlspecialchars($product['Name'], ENT_QUOTES, 'UTF-8'); ?></h3>
                         <strong><?php echo number_format((float) $product['Price'], 0, ',', '.'); ?>đ</strong>
+                        <?php if (!empty($product['category_name'])): ?>
+                            <span class="subtitle">Danh mục: <?php echo htmlspecialchars($product['category_name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                        <?php endif; ?>
                         <span class="product-link">Xem chi tiết →</span>
                     </div>
                 </a>
