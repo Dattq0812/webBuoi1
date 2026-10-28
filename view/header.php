@@ -43,7 +43,15 @@
             --success: #15803d;
         }
         * { box-sizing: border-box; }
-        body { margin: 0; color: var(--ink); background: var(--background); font: 15px/1.5 Arial, sans-serif; }
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            margin: 0;
+            color: var(--ink);
+            background: var(--background);
+            font: 15px/1.5 Arial, sans-serif;
+        }
         a { color: inherit; }
         .topbar { color: #dbeafe; background: #0f172a; font-size: 13px; }
         .topbar-inner, .nav-inner, .container { width: min(1180px, calc(100% - 32px)); margin: auto; }
@@ -101,7 +109,7 @@
         @media (max-width: 520px) {
             .customer-profile-grid, .loyalty-tier-list { grid-template-columns: 1fr; }
         }
-        main { padding: 34px 0 60px; }
+        main { flex: 1 0 auto; padding: 34px 0 60px; }
         .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px; }
         h1, h2, p { margin-top: 0; }
         h1 { margin-bottom: 6px; font-size: 30px; }

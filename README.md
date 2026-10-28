@@ -35,6 +35,10 @@ trị của quản lý.
 - Huỷ đơn khi đơn còn ở trạng thái chờ xác nhận, kèm lý do.
 - Nhận email xác nhận đơn hàng và gửi thông báo huỷ đơn cho cửa hàng.
 - Email xác nhận đơn hàng có đính kèm các hình ảnh sản phẩm nếu file ảnh tồn tại.
+- Khi đơn ở trạng thái `Đã giao`, xác nhận hoàn tất kèm đánh giá 1-5 sao và cảm
+  nhận; mỗi đơn chỉ được đánh giá một lần.
+- Gửi yêu cầu hoàn trả đơn đã giao với lý do; yêu cầu được chuyển cho quản lý
+  duyệt trước khi hoàn tồn kho.
 
 ### Quản lý
 
@@ -47,7 +51,10 @@ trị của quản lý.
   hàng.
 - Chuyển trạng thái đơn theo đúng thứ tự:
 
-  `Chờ xác nhận -> Đã xác nhận -> Đang giao -> Đã giao -> Hoàn trả`
+  `Chờ xác nhận -> Đã xác nhận -> Đang giao -> Đã giao`
+
+  Từ `Đã giao`, khách hàng có thể xác nhận `Hoàn tất` hoặc gửi yêu cầu
+  `Chờ duyệt hoàn trả`; quản lý duyệt yêu cầu để chuyển sang `Hoàn trả hàng`.
 
 - Huỷ đơn và nhập lý do huỷ; hệ thống xử lý hoàn tồn kho theo nghiệp vụ.
 - Nhận email khi khách hàng yêu cầu huỷ đơn.
@@ -106,6 +113,8 @@ trị của quản lý.
    - `sanpham`: sản phẩm, giá, tồn kho, mô tả, khuyến mãi, hình ảnh và danh mục.
    - `donhang`: thông tin đơn hàng, trạng thái, thanh toán và khách hàng.
    - `chitietdonhang`: các sản phẩm trong đơn hàng.
+   - `inventory_movements`: lịch sử nhập, xuất và hoàn nhập tồn kho.
+   - `order_reviews`: đánh giá và cảm nhận của khách hàng sau khi nhận hàng.
    - `khachhang`: tài khoản khách hàng và thông tin đặt lại mật khẩu.
 
    Repository hiện không chứa file migration/schema SQL. Vì vậy cần dùng schema
@@ -226,9 +235,11 @@ vendor/                   Dependency Composer
 | `index.php?act=customer_orders` | Khách hàng | Xem đơn hàng của mình |
 | `index.php?act=order_detail&id=...` | Khách hàng/Quản lý | Xem chi tiết một đơn hàng |
 | `index.php?act=cancel_customer_order` | Khách hàng | Yêu cầu huỷ đơn |
+| `index.php?act=complete_customer_order` | Khách hàng | Xác nhận hoàn tất và đánh giá đơn đã giao |
+| `index.php?act=return_customer_order` | Khách hàng | Yêu cầu hoàn trả đơn đã giao |
 | `index.php?act=admin` | Quản lý | Trang quản trị |
 | `index.php?act=orders` | Quản lý | Quản lý đơn hàng |
-| `index.php?act=update_order_status` | Quản lý | Cập nhật trạng thái đơn |
+| `index.php?act=update_order_status` | Quản lý | Cập nhật trạng thái hoặc duyệt hoàn trả |
 | `index.php?act=cancel_order` | Quản lý | Huỷ đơn hàng |
 | `index.php?act=hienthiDM` | Quản lý | Quản lý danh mục |
 | `index.php?act=hienthiSP` | Quản lý | Quản lý sản phẩm |
@@ -259,8 +270,12 @@ Kiểm tra trên trình duyệt:
 6. Đặt hàng với từng phương thức thanh toán và voucher.
 7. Kiểm tra tồn kho sau khi đặt hoặc huỷ đơn.
 8. Kiểm tra lịch sử đơn hàng và quyền huỷ đơn của khách hàng.
-9. Đổi trạng thái đơn hàng theo đúng thứ tự trong khu vực quản lý.
-10. Thêm, sửa, xoá danh mục và sản phẩm; kiểm tra upload hình ảnh.
+9. Xác nhận đơn đã giao, gửi đánh giá hoặc yêu cầu hoàn trả; kiểm tra quản lý
+   duyệt hoàn trả và tồn kho được hoàn lại.
+10. Đổi trạng thái đơn hàng theo đúng thứ tự trong khu vực quản lý.
+11. Kiểm tra dashboard doanh thu theo tuần, tháng, năm, theo quý và biểu đồ
+    nhập/xuất kho.
+12. Thêm, sửa, xoá danh mục và sản phẩm; kiểm tra upload hình ảnh.
 
 ## Lưu ý bảo mật
 

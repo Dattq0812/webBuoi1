@@ -44,12 +44,19 @@
   `view/images/`.
 - Đơn hàng liên kết tài khoản qua `donhang.customer_id`.
 - Tồn kho được trừ khi đặt hàng và hoàn lại khi huỷ hợp lệ.
+- Lịch sử biến động tồn kho được lưu trong `inventory_movements` cho các lần
+  nhập sản phẩm, xuất kho khi đặt hàng và hoàn nhập khi huỷ hoặc duyệt hoàn trả.
+- Sau khi giao hàng, khách có thể xác nhận hoàn tất và lưu một đánh giá 1-5 sao
+  trong `order_reviews`, hoặc gửi yêu cầu hoàn trả kèm lý do. Quản lý duyệt
+  yêu cầu hoàn trả theo luồng `yeu_cau_hoan_tra -> hoan_tra`.
 - Không cho xoá sản phẩm còn thuộc đơn chưa huỷ; danh mục chứa sản phẩm này cũng
   bị bảo vệ. Chỉ cho xoá khi mọi đơn liên quan đã ở trạng thái `da_huy`.
 - Đơn huỷ và đơn chuyển sang `hoan_tra` đều hoàn lại số lượng vào tồn kho bằng
   transaction, tránh cập nhật trạng thái nhưng thiếu tồn kho.
 - Trạng thái được cập nhật một chiều bởi quản lý.
 - Khách chỉ được huỷ đơn của chính mình khi đơn còn `cho_xac_nhan`.
+- Dashboard gồm doanh thu/số đơn theo tuần, tháng, năm và biểu đồ doanh thu
+  cùng nhập/xuất kho theo bốn quý; dữ liệu không có được hiển thị bằng 0.
 
 ## 3. Luồng dữ liệu chính
 
@@ -69,6 +76,13 @@ Quản lý
   -> huỷ đơn hợp lệ
   -> hoàn tồn kho
   -> email thông báo
+
+Khách hàng
+  -> nhận hàng
+  -> đánh giá và xác nhận hoàn tất
+  -> hoặc yêu cầu hoàn trả
+  -> quản lý duyệt hoàn trả
+  -> hoàn tồn kho
 ```
 
 ## 4. Thành phần quan trọng
@@ -80,10 +94,14 @@ Quản lý
 | `models/khachhang.php` | Tài khoản và token reset |
 | `models/donhang.php` | Tạo, đọc, cập nhật, huỷ đơn |
 | `models/sanpham.php` | Catalog, sản phẩm bán chạy và sản phẩm mới |
+| `models/duplicate_checker.php` | Kiểm tra dữ liệu trùng cho AJAX và server |
 | `services/customer_auth.php` | Session và quyền khách hàng |
 | `services/auth.php` | Nạp `.env` và quyền quản lý |
 | `services/mailer.php` | SMTP và email nghiệp vụ |
 | `view/customer_orders.php` | Lịch sử đơn hàng khách |
+| `view/customer_profile.php` | Hạng thành viên và tổng chi tiêu |
+| `view/customers.php` | Danh sách khách hàng và hạng thành viên cho quản lý |
+| `view/home.php` | Dashboard quản lý, thống kê và đề xuất sản phẩm |
 | `database/customer_auth.sql` | Migration tài khoản khách |
 
 ## 5. Trạng thái triển khai
@@ -92,6 +110,10 @@ Quản lý
 - Đã hoàn tất đăng ký, đăng nhập và khôi phục mật khẩu khách hàng.
 - Đã hoàn tất lịch sử đơn hàng và đồng bộ trạng thái.
 - Đã hoàn tất huỷ đơn phía khách kèm lý do và email về shop.
+- Đã hoàn tất dashboard doanh thu, thống kê theo quý và theo dõi nhập/xuất
+  kho.
+- Đã hoàn tất hạng khách hàng thân thiết, ưu đãi theo tổng chi tiêu, đánh giá
+  sau giao hàng và quy trình yêu cầu/duyệt hoàn trả.
 - Đã kiểm tra syntax các file PHP liên quan.
 - Cần chạy migration database trước khi sử dụng tài khoản khách trên database
   hiện tại.
